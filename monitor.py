@@ -2,9 +2,10 @@ import serial
 import numpy as np
 import cv2
 import sys
+import time
 
-IMG_COL = 320
-IMG_ROW = 180
+IMG_COL = 180
+IMG_ROW = 320
 FRAME_BYTES = (IMG_COL * IMG_ROW) // 2
 
 HEADER_BYTE = 0xFF
@@ -67,6 +68,10 @@ if len(sys.argv) < 2:
 port = sys.argv[1]
 ser = serial.Serial(port, timeout=1)
 cv2.namedWindow("Game", cv2.WINDOW_NORMAL)
+
+
+last_time = time.perf_counter()
+fps = 0.0
 while True:
     find_frame_header(ser)
     raw = read_exact(ser, FRAME_BYTES)
@@ -83,15 +88,26 @@ while True:
     img = pixels.reshape((IMG_ROW, IMG_COL))
     img_rgb = palette[img]
 
-    img_big = cv2.resize(
+    now = time.perf_counter()
+    dt = now - last_time
+    if dt > 0:
+        inst_fps = 1.0 / dt
+        fps = inst_fps if fps == 0.0 else (0.9 * fps + 0.1 * inst_fps)
+    last_time = now
+
+    cv2.putText(
         img_rgb,
-        None,
-        fx=SCALE,
-        fy=SCALE,
-        interpolation=cv2.INTER_NEAREST
+        f"FPS: {fps:.1f}",
+        (6, 18),
+        cv2.FONT_HERSHEY_SIMPLEX,
+        0.5,
+        (255, 255, 255),
+        1,
+        cv2.LINE_AA,
     )
 
-    cv2.imshow("Game", img_big)
+    cv2.resizeWindow("Game", IMG_COL * SCALE, IMG_ROW * SCALE)
+    cv2.imshow("Game", img_rgb)
 
     if cv2.waitKey(1) == 27:
         break
