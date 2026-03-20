@@ -22,6 +22,7 @@
 #include "stm32f4xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "controls.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -57,7 +58,8 @@
 /* External variables --------------------------------------------------------*/
 extern PCD_HandleTypeDef hpcd_USB_OTG_FS;
 /* USER CODE BEGIN EV */
-
+extern volatile bool flag_shoot;
+extern volatile bool flag_bomb;
 /* USER CODE END EV */
 
 /******************************************************************************/
@@ -197,6 +199,35 @@ void SysTick_Handler(void)
 /* For the available peripheral interrupt handler names,                      */
 /* please refer to the startup file (startup_stm32f4xx.s).                    */
 /******************************************************************************/
+
+/**
+  * @brief This function handles EXTI line[15:10] interrupts.
+  */
+void EXTI15_10_IRQHandler(void)
+{
+  /* USER CODE BEGIN EXTI15_10_IRQn 0 */
+  if (__HAL_GPIO_EXTI_GET_FLAG(BTN_SHOOT_Pin)) {
+    flag_shoot = true;
+
+  }
+
+  if (__HAL_GPIO_EXTI_GET_FLAG(BTN_BOMB_Pin)) {
+    flag_bomb = true;
+
+  }
+
+  if (__HAL_GPIO_EXTI_GET_FLAG(BTN_PAUSE_Pin)) {
+    // flag_shoot = true;
+
+  }
+  /* USER CODE END EXTI15_10_IRQn 0 */
+  HAL_GPIO_EXTI_IRQHandler(BTN_PAUSE_Pin);
+  HAL_GPIO_EXTI_IRQHandler(BTN_BOMB_Pin);
+  HAL_GPIO_EXTI_IRQHandler(BTN_SHOOT_Pin);
+  /* USER CODE BEGIN EXTI15_10_IRQn 1 */
+
+  /* USER CODE END EXTI15_10_IRQn 1 */
+}
 
 /**
   * @brief This function handles USB On The Go FS global interrupt.
