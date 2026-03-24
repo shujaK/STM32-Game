@@ -207,7 +207,14 @@ void EXTI15_10_IRQHandler(void)
 {
   /* USER CODE BEGIN EXTI15_10_IRQn 0 */
   if (__HAL_GPIO_EXTI_GET_FLAG(BTN_SHOOT_Pin)) {
-    flag_shoot = true;
+    // flag_shoot = true;
+    if (HAL_GPIO_ReadPin(GPIOF, GPIO_PIN_15) == GPIO_PIN_RESET) {
+      flag_shoot = true;
+    } 
+    // If it's HIGH (1), the player just let go of the button.
+    else {
+      flag_shoot = false;
+    }
 
   }
 
