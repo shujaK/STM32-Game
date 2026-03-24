@@ -9,15 +9,15 @@
 #define INC_GAME_H_
 #include <stdint.h>
 #include "monitor.h"
+#include "controls.h"
 
 #define MAX_ENEMIES 100
 #define MAX_BULLETS 500
 
-
 typedef struct
 {
-  uint16_t x : 7;
-  uint16_t y : 9;
+  int x;
+  int y;
 } int2d;
 
 typedef struct
@@ -35,7 +35,12 @@ typedef struct
   int2d velocity;
 } enemy;
 
-typedef enum { SMALL = 0, MEDIUM, LARGE } enemy_type;
+typedef enum
+{
+  SMALL = 0,
+  MEDIUM,
+  LARGE
+} enemy_type;
 
 typedef struct
 {
@@ -53,5 +58,6 @@ void draw_player(frame *f, player *p);
 void draw_bullet(frame *f, bullet *b);
 
 void draw_all(frame *f);
+void update_player(player *p, controls *c);
 
 #endif /* INC_GAME_H_ */
