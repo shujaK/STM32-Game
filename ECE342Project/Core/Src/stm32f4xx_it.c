@@ -211,7 +211,6 @@ void EXTI15_10_IRQHandler(void)
     if (HAL_GPIO_ReadPin(GPIOF, GPIO_PIN_15) == GPIO_PIN_RESET) {
       flag_shoot = true;
     } 
-    // If it's HIGH (1), the player just let go of the button.
     else {
       flag_shoot = false;
     }

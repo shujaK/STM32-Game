@@ -27,7 +27,7 @@ COLOUR_MAP = {
     0xA: (173, 216, 230),   # LIGHTBLUE
     0xB: (144, 238, 144),   # LIGHTGREEN
     0xC: (224, 255, 255),   # LIGHTCYAN
-    0xD: (255, 182, 182),   # LIGHTRED
+    0xD: (255, 182, 182),   # LIGHTRED --WANNA CHANGE TO ORANGE(255,128,0) for orange
     0xE: (255, 160, 255),   # LIGHTMAGENTA
     0xF: (0, 0, 0),         # reserved for header
 }
