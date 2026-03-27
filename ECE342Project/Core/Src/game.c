@@ -6,10 +6,12 @@
  */
 
 #include "game.h"
-#include "sprite.h"
 #include "enemy.h"
 #include "player.h"
 #include "bullet.h"
+
+uint16_t score = 0;
+bool game_start = false;
 
 void draw_all(frame *f, player *p)
 {
@@ -33,10 +35,16 @@ void draw_all(frame *f, player *p)
 }
 
 void update_all(player *p, controls *c){
-  update_player(p, c);
-  
-  uint32_t current_time_ms = HAL_GetTick();
-  handle_shooting(p, c, current_time_ms);
-  update_bullets();
-  update_enemy();
+  if (c->button_shoot)
+  {
+    game_start = true;
+  }
+  if (game_start)
+  {
+    update_player(p, c);
+    uint64_t current_time_ms = (uint64_t)HAL_GetTick();
+    handle_shooting(p, c, current_time_ms);
+    update_bullets();
+    update_enemy();
+  }
 }

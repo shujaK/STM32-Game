@@ -10,6 +10,7 @@
 #include <stdint.h>
 #include "monitor.h"
 #include "controls.h"
+#include "sprite.h"
 
 #define MAX_ENEMIES 100
 #define MAX_BULLETS 500
@@ -36,6 +37,7 @@ typedef struct
   int2d p;
   uint8_t health;
   int2d velocity;
+  uint64_t time;
 } enemy;
 
 typedef enum
@@ -51,6 +53,8 @@ typedef struct
   uint8_t damage;
   uint8_t speed;
 } bullet;
+
+extern uint16_t score;
 
 void draw_all(frame *f, player *p);
 void update_all(player *p, controls *c);

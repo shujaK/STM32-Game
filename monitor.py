@@ -3,6 +3,7 @@ import numpy as np
 import cv2
 import sys
 import time
+import struct
 
 IMG_COL = 180
 IMG_ROW = 320
@@ -27,7 +28,7 @@ COLOUR_MAP = {
     0xA: (173, 216, 230),   # LIGHTBLUE
     0xB: (144, 238, 144),   # LIGHTGREEN
     0xC: (224, 255, 255),   # LIGHTCYAN
-    0xD: (255, 182, 182),   # LIGHTRED --WANNA CHANGE TO ORANGE(255,128,0) for orange
+    0xD: (255, 182, 182),   # LIGHTRED 
     0xE: (255, 160, 255),   # LIGHTMAGENTA
     0xF: (0, 0, 0),         # reserved for header
 }
@@ -74,6 +75,8 @@ last_time = time.perf_counter()
 fps = 0.0
 while True:
     find_frame_header(ser)
+    score_bytes = read_exact(ser, 2)
+    score = struct.unpack('<H', score_bytes)[0]
     raw = read_exact(ser, FRAME_BYTES)
 
     data = np.frombuffer(raw, dtype=np.uint8)
@@ -87,6 +90,7 @@ while True:
 
     img = pixels.reshape((IMG_ROW, IMG_COL))
     img_rgb = palette[img]
+    img_rgb = cv2.cvtColor(img_rgb, cv2.COLOR_RGB2BGR)
 
     now = time.perf_counter()
     dt = now - last_time
@@ -99,6 +103,16 @@ while True:
         img_rgb,
         f"FPS: {fps:.1f}",
         (6, 18),
+        cv2.FONT_HERSHEY_SIMPLEX,
+        0.5,
+        (255, 255, 255),
+        1,
+        cv2.LINE_AA,
+    )
+    cv2.putText(
+        img_rgb,
+        f"Score: {score}",
+        (6, 36),
         cv2.FONT_HERSHEY_SIMPLEX,
         0.5,
         (255, 255, 255),

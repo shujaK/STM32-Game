@@ -16,6 +16,12 @@ void send_frame(frame *f)
   {
   }
 
+  // send score
+  uint8_t *score_buf = (uint8_t *)&f->score;
+  while (CDC_Transmit_FS(score_buf, 2) == USBD_BUSY)
+  {
+  }
+
   uint8_t *buf = (uint8_t *)f->data;
   uint32_t remaining = sizeof(f->data);
   uint32_t offset = 0;

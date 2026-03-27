@@ -8,6 +8,6 @@ extern bullet player_bullets[MAX_PLAYER_BULLETS];
 
 void draw_player(frame *f, player *p);
 void update_player(player *p, controls *c);
-void handle_shooting(player *p, controls *c, uint32_t current_time_ms);
+void handle_shooting(player *p, controls *c, uint64_t current_time_ms);
 
 #endif /* INC_PLAYER_H_ */

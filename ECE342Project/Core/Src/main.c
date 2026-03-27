@@ -112,7 +112,7 @@ int main(void)
 
   player player1 =
       {.p =
-           {.x = 100, .y = 106},
+           {.x = 50, .y = 106},
        .health = 100,
        .velocity =
            {0, 0},
@@ -124,14 +124,14 @@ int main(void)
   while (1)
   {
 
-    // update_controls(PlayerControl);
+    update_controls(PlayerControl);
     // update_player(&player1, PlayerControl);
     //  HAL_Delay (500);
     update_all(&player1, PlayerControl);
     HAL_GPIO_TogglePin(LD1_GPIO_Port, LD1_Pin);
     clear_frame(&f, BLACK);
     draw_all(&f, &player1);
-    write_pixel(&f, 100, 100, WHITE);
+    f.score = score;
     send_frame(&f);
     HAL_Delay(0);
 

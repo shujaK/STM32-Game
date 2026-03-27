@@ -6,7 +6,8 @@ bullet bullets[MAX_BULLETS];
 
 void draw_enemy(frame *f, enemy *e)
 {
-  write_pixel(f, e->p.x, e->p.y, RED);
+//    write_pixel(f, e->p.x, e->p.y, RED);
+    draw_sprite(f, e->p.x, e->p.y, enemy_fighter_sprite, 8, 7, 7);
 }
 
 void init_test_enemy()
@@ -16,13 +17,14 @@ void init_test_enemy()
   {
     enemies[i].health = 0;
   }
-
+ 
   // Spawn one active enemy at a fixed location
   enemies[0].p.x = IMG_COL / 2 - 3; // Roughly centered horizontally
   enemies[0].p.y = 20;
   enemies[0].health = 1; // 1 hit point
-  enemies[0].velocity.x = 0;
-  enemies[0].velocity.y = 0;
+  enemies[0].velocity.x = 1;
+  enemies[0].velocity.y = 1;
+  enemies[0].time = 0;
 }
 
 bool check_AABB(int x1, int y1, int w1, int h1, int x2, int y2, int w2, int h2)
@@ -33,6 +35,45 @@ bool check_AABB(int x1, int y1, int w1, int h1, int x2, int y2, int w2, int h2)
           y1 + h1 > y2);  // Box 1's bottom edge is past Box 2's top edge
 }
 
+void update_enemy_bullets()
+{
+  for (int i = 0; i < MAX_BULLETS; i++)
+  {
+    if (bullets[i].damage > 0)
+    {
+      bullets[i].p.y += bullets[i].speed; // Move the bullet up the screen
+
+      // Deactivate the bullet if it goes off the top edge of the screen
+      // Assuming 0 is the top boundary
+      if (bullets[i].p.y > IMG_ROW - 5 || bullets[i].p.x < 0 || bullets[i].p.x > IMG_COL)
+      {
+        bullets[i].damage = 0;
+      }
+    }
+  }
+}
+
+void handle_enemy_shooting(enemy* e, uint64_t current_time_ms)
+{
+  if (current_time_ms - e->time > 1000)
+  {
+    for (int i = 0; i < MAX_BULLETS; i++)
+      {
+        // We use damage == 0 to represent an inactive bullet
+        if (bullets[i].damage == 0)
+        {
+          bullets[i].damage = 1;           // Set damage to activate it
+          bullets[i].speed = PLAYER_BULLET_SPEED; 
+          bullets[i].p.x = e->p.x + 1;     // Center bullet on the jet (adjust offset as needed)
+          bullets[i].p.y = e->p.y + 3;     // Spawn slightly above the jet
+
+          e->time = current_time_ms; 
+          break;                            // Stop searching after spawning one bullet
+        }
+      }
+  }
+}
+
 // Use AABB to Check whether Enemies collide with bullets
 void update_enemy()
 {
@@ -41,24 +82,39 @@ void update_enemy()
   int bullet_h = 3;
   int enemy_w = 6; // Adjust if your enemy sprite is a different size
   int enemy_h = 5;
-
-  // Loop through all active bullets
-  for (int i = 0; i < MAX_PLAYER_BULLETS; i++)
+  
+  for (int i = 0; i < MAX_ENEMIES; i++)
   {
-    if (player_bullets[i].damage > 0)
+    if (enemies[i].health > 0)
     {
-      // For each active bullet, check against all active enemies
-      for (int j = 0; j < MAX_ENEMIES; j++)
+      if ((enemies[i].p.x > IMG_COL -  enemy_w) || enemies[i].p.x < enemy_w)
       {
-        if (enemies[j].health > 0)
+        enemies[i].velocity.x *= -1;
+      }
+
+      if ((enemies[i].p.y > 50) || enemies[i].p.y < enemy_h)
+      {
+        enemies[i].velocity.y *= -1;
+      }
+
+      // Apply velocity
+      enemies[i].p.x += enemies[i].velocity.x;
+      enemies[i].p.y += enemies[i].velocity.y;
+
+      uint64_t curr_time = (uint64_t)HAL_GetTick();
+      handle_enemy_shooting(&enemies[i], curr_time);
+
+      // check bullet collision
+      for (int j = 0; j < MAX_PLAYER_BULLETS; j++)
+      {
+        if (player_bullets[j].damage > 0)
         {
-          // Check for overlap
-          if (check_AABB(player_bullets[i].p.x, player_bullets[i].p.y, bullet_w, bullet_h,
-                         enemies[j].p.x, enemies[j].p.y, enemy_w, enemy_h))
+          if (check_AABB(player_bullets[j].p.x, player_bullets[j].p.y, bullet_w, bullet_h,
+                         enemies[i].p.x, enemies[i].p.y, enemy_w, enemy_h))
           {
             // Collision hit!
-            enemies[j].health -= 1; // Reduce enemy health (destroys it if health hits 0)
-            player_bullets[i].damage = 0;  // Deactivate the bullet
+            enemies[i].health -= 1; // Reduce enemy health (destroys it if health hits 0)
+            player_bullets[j].damage = 0;  // Deactivate the bullet
 
             // Bullet is destroyed, so stop checking it against other enemies
             break;
@@ -67,4 +123,5 @@ void update_enemy()
       }
     }
   }
+  update_enemy_bullets();
 }

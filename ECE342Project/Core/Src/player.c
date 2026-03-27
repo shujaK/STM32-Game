@@ -3,7 +3,7 @@
 
 player player1;
 bullet player_bullets[MAX_PLAYER_BULLETS];
-uint32_t last_fire_time = 0;
+uint64_t last_fire_time = 0;
 
 void draw_player(frame *f, player *p)
 {
@@ -13,9 +13,8 @@ void draw_player(frame *f, player *p)
 
 void update_player(player *p, controls *c)
 {
-  update_controls(c);
-  p->velocity.x = c->joystick_x * 10; // scale the joystick input to control speed
-  p->velocity.y = c->joystick_y * 10;
+  p->velocity.x = c->joystick_x * 2; // scale the joystick input to control speed
+  p->velocity.y = c->joystick_y * 5;
   p->p.x += p->velocity.x;
   p->p.y += p->velocity.y;
 
@@ -40,7 +39,7 @@ void update_player(player *p, controls *c)
 
 // Pass in your current system time (e.g., HAL_GetTick())
 // LATER: CREATE ANOTHER ARRAY FOR PLAYER BULLETS
-void handle_shooting(player *p, controls *c, uint32_t current_time_ms)
+void handle_shooting(player *p, controls *c, uint64_t current_time_ms)
 {
   if (c->button_shoot)
   {

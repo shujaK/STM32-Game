@@ -38,4 +38,5 @@ void update_bullets()
       }
     }
   }
+  
 }

@@ -32,6 +32,7 @@ typedef struct
 typedef struct
 {
   pix2 data[IMG_SIZE]; // 2 pixels per byte so /2
+  uint16_t score;
 } frame;
 
 typedef enum
