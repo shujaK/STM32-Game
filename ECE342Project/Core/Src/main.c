@@ -119,38 +119,18 @@ int main(void)
        .cooldown = 0};
 
   controls *PlayerControl = malloc(sizeof(controls));
-
+  init_bullets();
+  init_test_enemy();
   while (1)
   {
+
     // update_controls(PlayerControl);
-    // player1.velocity.x = PlayerControl->joystick_x * 10; // scale the joystick input to control speed
-    // player1.velocity.y = PlayerControl->joystick_y * 10;
-    // player1.p.x += player1.velocity.x;
-    // player1.p.y += player1.velocity.y;
-
-    // if (player1.p.x >= IMG_COL - 5)
-    // {
-    //   player1.p.x = IMG_COL - 5;
-    // }
-    // if (player1.p.y >= IMG_ROW - 5)
-    // {
-    //   player1.p.y = IMG_ROW - 5;
-    // }
-    // // also set min vals to 0
-    // if (player1.p.x < 5)
-    // {
-    //   player1.p.x = 5;
-    // }
-    // if (player1.p.y < 5)
-    // {
-    //   player1.p.y = 5;
-    // }
-
-    update_player(&player1, PlayerControl);
+    // update_player(&player1, PlayerControl);
     //  HAL_Delay (500);
+    update_all(&player1, PlayerControl);
     HAL_GPIO_TogglePin(LD1_GPIO_Port, LD1_Pin);
     clear_frame(&f, BLACK);
-    draw_player(&f, &player1);
+    draw_all(&f, &player1);
     write_pixel(&f, 100, 100, WHITE);
     send_frame(&f);
     HAL_Delay(0);
@@ -343,17 +323,11 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : BTN_PAUSE_Pin BTN_BOMB_Pin */
-  GPIO_InitStruct.Pin = BTN_PAUSE_Pin|BTN_BOMB_Pin;
+  /*Configure GPIO pins : BTN_PAUSE_Pin BTN_BOMB_Pin BTN_SHOOT_Pin */
+  GPIO_InitStruct.Pin = BTN_PAUSE_Pin|BTN_BOMB_Pin|BTN_SHOOT_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : BTN_SHOOT_Pin */
-  GPIO_InitStruct.Pin = BTN_SHOOT_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
-  HAL_GPIO_Init(BTN_SHOOT_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : USB_PowerSwitchOn_Pin */
   GPIO_InitStruct.Pin = USB_PowerSwitchOn_Pin;

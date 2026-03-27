@@ -24,7 +24,25 @@ static const uint8_t jet_sprite[15] =
 
 };
 
+static const uint8_t advanced_jet_sprite[28] =
+{ 
+  0x00, 0x01, 0x00, 0x00,  // row 0: Nose tip
+  0x00, 0x94, 0x90, 0x00,  // row 1: Cockpit
+  0x09, 0x88, 0x89, 0x00,  // row 2: Upper wings / Body
+  0x99, 0x88, 0x89, 0x90,  // row 3: Main wings spread
+  0x00, 0x88, 0x80, 0x00,  // row 4: Lower fuselage
+  0x09, 0x98, 0x99, 0x00,  // row 5: Tail wings
+  0x00, 0x0D, 0x00, 0x00   // row 6: Engine exhaust flame
+};
+
 static const uint8_t bullet_sprite[3] =
+{
+    0xD0,  // row 0: LR _
+    0xD0,  // row 1: LR _ 
+    0xD0,  // row 2: LR _
+};
+
+static const uint8_t small_enemy_sprite[3] =
 {
     0xD0,  // row 0: LR _
     0xD0,  // row 1: LR _ 

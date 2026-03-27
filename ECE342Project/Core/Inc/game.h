@@ -13,8 +13,9 @@
 
 #define MAX_ENEMIES 100
 #define MAX_BULLETS 500
+#define MAX_PLAYER_BULLETS 20
 #define FIRE_COOLDOWN_MS 200 // 5 bullets per second (1000ms / 5)
-#define BULLET_SPEED 5
+#define PLAYER_BULLET_SPEED 5
 
 typedef struct
 {
@@ -53,13 +54,14 @@ typedef struct
 
 extern enemy enemies[MAX_ENEMIES];
 extern bullet bullets[MAX_BULLETS];
+extern bullet player_bullets[MAX_PLAYER_BULLETS];
 extern player player1;
 
 void draw_enemy(frame *f, enemy *e);
 void draw_player(frame *f, player *p);
 void draw_bullet(frame *f, bullet *b);
 
-void draw_all(frame *f);
+void draw_all(frame *f, player *p);
 void update_all();
 void update_player(player *p, controls *c);
 

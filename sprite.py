@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import os
 
 COLOUR_MAP = {
     0x0: (0, 0, 0),         # BLACK
@@ -47,6 +48,7 @@ def print_c_array(byte_array, rows, cols, name="sprite"):
             print()
     print("\n};")
 
-image = cv2.imread("./sprites/jet.png")
+image_path = os.path.join(os.path.dirname(__file__), 'sprites', 'jet.png')
+image = cv2.imread(image_path)
 byte_array, rows, cols = image_to_bytes(image)
 print_c_array(byte_array, rows, cols, name="jet_sprite")

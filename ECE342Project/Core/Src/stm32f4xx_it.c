@@ -206,20 +206,21 @@ void SysTick_Handler(void)
 void EXTI15_10_IRQHandler(void)
 {
   /* USER CODE BEGIN EXTI15_10_IRQn 0 */
+  uint32_t current_time = HAL_GetTick(); // Get current time in ms
+  const uint32_t DEBOUNCE_DELAY = 200;    // 200 milliseconds debounce window
+  static uint32_t last_bomb_time = 0;
+
   if (__HAL_GPIO_EXTI_GET_FLAG(BTN_SHOOT_Pin)) {
-    // flag_shoot = true;
-    if (HAL_GPIO_ReadPin(GPIOF, GPIO_PIN_15) == GPIO_PIN_RESET) {
-      flag_shoot = true;
-    } 
-    else {
-      flag_shoot = false;
-    }
+    flag_shoot = true;
 
   }
 
   if (__HAL_GPIO_EXTI_GET_FLAG(BTN_BOMB_Pin)) {
-    flag_bomb = true;
-
+    // flag_bomb = true;
+    if ((current_time - last_bomb_time) > DEBOUNCE_DELAY) {
+      flag_bomb = true;
+      last_bomb_time = current_time;
+    }
   }
 
   if (__HAL_GPIO_EXTI_GET_FLAG(BTN_PAUSE_Pin)) {

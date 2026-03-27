@@ -10,7 +10,9 @@
 
 enemy enemies[MAX_ENEMIES];
 bullet bullets[MAX_BULLETS];
-player player1;
+bullet player_bullets[MAX_PLAYER_BULLETS];
+// player player1;
+
 uint32_t last_fire_time = 0;
 
 void draw_enemy(frame *f, enemy *e)
@@ -20,7 +22,8 @@ void draw_enemy(frame *f, enemy *e)
 
 void draw_player(frame *f, player *p)
 {
-  draw_sprite(f, p->p.x % IMG_COL, p->p.y % IMG_ROW, jet_sprite, 6, 5, 5);
+  // draw_sprite(f, p->p.x, p->p.y, jet_sprite, 6, 5, 5);
+  draw_sprite(f, p->p.x, p->p.y, advanced_jet_sprite, 8, 7, 7);
 }
 
 void draw_bullet(frame *f, bullet *b)
@@ -29,9 +32,9 @@ void draw_bullet(frame *f, bullet *b)
   draw_sprite(f, b->p.x, b->p.y, bullet_sprite, 2, 1, 3);
 }
 
-void draw_all(frame *f)
+void draw_all(frame *f, player *p)
 {
-  draw_player(f, &player1);
+  draw_player(f, p);
   for (int i = 0; i < MAX_ENEMIES; i++)
   {
     if (enemies[i].health > 0)
@@ -42,6 +45,21 @@ void draw_all(frame *f)
     if (bullets[i].damage > 0)
       draw_bullet(f, &bullets[i]);
   }
+
+  for (int i = 0; i < MAX_PLAYER_BULLETS; i++)
+  {
+    if (player_bullets[i].damage > 0)
+      draw_bullet(f, &player_bullets[i]);
+  }
+}
+
+void update_all(player *p, controls *c){
+  update_player(p, c);
+  
+  uint32_t current_time_ms = HAL_GetTick();
+  handle_shooting(p, c, current_time_ms);
+  update_bullets();
+  update_enemy();
 }
 
 void update_player(player *p, controls *c)
@@ -77,6 +95,11 @@ void init_bullets()
   {
     bullets[i].damage = 0;
   }
+
+  for (int i = 0; i < MAX_PLAYER_BULLETS; i++)
+  {
+    player_bullets[i].damage = 0;
+  }
 }
 
 // Pass in your current system time (e.g., HAL_GetTick())
@@ -88,15 +111,15 @@ void handle_shooting(player *p, controls *c, uint32_t current_time_ms)
     // Check if 200ms have passed since the last shot
     if ((current_time_ms - last_fire_time) >= FIRE_COOLDOWN_MS)
     {
-      for (int i = 0; i < MAX_BULLETS; i++)
+      for (int i = 0; i < MAX_PLAYER_BULLETS; i++)
       {
         // We use damage == 0 to represent an inactive bullet
-        if (bullets[i].damage == 0)
+        if (player_bullets[i].damage == 0)
         {
-          bullets[i].damage = 1;           // Set damage to activate it
-          bullets[i].speed = BULLET_SPEED; 
-          bullets[i].p.x = p->p.x + 2;     // Center bullet on the jet (adjust offset as needed)
-          bullets[i].p.y = p->p.y - 3;     // Spawn slightly above the jet
+          player_bullets[i].damage = 1;           // Set damage to activate it
+          player_bullets[i].speed = PLAYER_BULLET_SPEED; 
+          player_bullets[i].p.x = p->p.x + 1;     // Center bullet on the jet (adjust offset as needed)
+          player_bullets[i].p.y = p->p.y - 3;     // Spawn slightly above the jet
 
           last_fire_time = current_time_ms; 
           break;                            // Stop searching after spawning one bullet
@@ -108,17 +131,17 @@ void handle_shooting(player *p, controls *c, uint32_t current_time_ms)
 
 void update_bullets()
 {
-  for (int i = 0; i < MAX_BULLETS; i++)
+  for (int i = 0; i < MAX_PLAYER_BULLETS; i++)
   {
-    if (bullets[i].damage > 0)
+    if (player_bullets[i].damage > 0)
     {
-      bullets[i].p.y -= bullets[i].speed; // Move the bullet up the screen
+      player_bullets[i].p.y -= player_bullets[i].speed; // Move the bullet up the screen
 
       // Deactivate the bullet if it goes off the top edge of the screen
       // Assuming 0 is the top boundary
-      if (bullets[i].p.y < 0 || bullets[i].p.x < 0 || bullets[i].p.x > IMG_COL)
+      if (player_bullets[i].p.y < 3 || player_bullets[i].p.x < 0 || player_bullets[i].p.x > IMG_COL)
       {
-        bullets[i].damage = 0;
+        player_bullets[i].damage = 0;
       }
     }
   }
@@ -152,15 +175,15 @@ bool check_AABB(int x1, int y1, int w1, int h1, int x2, int y2, int w2, int h2)
 void update_enemy()
 {
   // Define the bounding box dimensions based on your sprites
-  int bullet_w = 2;
+  int bullet_w = 1;
   int bullet_h = 3;
   int enemy_w = 6; // Adjust if your enemy sprite is a different size
   int enemy_h = 5;
 
   // Loop through all active bullets
-  for (int i = 0; i < MAX_BULLETS; i++)
+  for (int i = 0; i < MAX_PLAYER_BULLETS; i++)
   {
-    if (bullets[i].damage > 0)
+    if (player_bullets[i].damage > 0)
     {
       // For each active bullet, check against all active enemies
       for (int j = 0; j < MAX_ENEMIES; j++)
@@ -168,12 +191,12 @@ void update_enemy()
         if (enemies[j].health > 0)
         {
           // Check for overlap
-          if (check_AABB(bullets[i].p.x, bullets[i].p.y, bullet_w, bullet_h,
+          if (check_AABB(player_bullets[i].p.x, player_bullets[i].p.y, bullet_w, bullet_h,
                          enemies[j].p.x, enemies[j].p.y, enemy_w, enemy_h))
           {
             // Collision hit!
             enemies[j].health -= 1; // Reduce enemy health (destroys it if health hits 0)
-            bullets[i].damage = 0;  // Deactivate the bullet
+            player_bullets[i].damage = 0;  // Deactivate the bullet
 
             // Bullet is destroyed, so stop checking it against other enemies
             break;
