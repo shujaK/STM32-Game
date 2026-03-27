@@ -17,14 +17,33 @@ void init_test_enemy()
   {
     enemies[i].health = 0;
   }
- 
-  // Spawn one active enemy at a fixed location
-  enemies[0].p.x = IMG_COL / 2 - 3; // Roughly centered horizontally
-  enemies[0].p.y = 20;
-  enemies[0].health = 1; // 1 hit point
-  enemies[0].velocity.x = 1;
-  enemies[0].velocity.y = 1;
-  enemies[0].time = 0;
+
+  int x =  IMG_COL / 2 - 3; // Roughly centered horizontally
+  for (int i = 0; i<5; i++)
+  {
+    enemy e;
+    e.p.x = x;
+    e.p.y = 20;
+    e.health = 1; // 1 hit point
+    e.velocity.x = 1;
+    e.velocity.y = 1;
+    e.time = 0;
+
+    spawn_enemy(&e);
+    x += 20;
+  }
+}
+
+void spawn_enemy(enemy *e)
+{
+  for (int i = 0; i < MAX_ENEMIES; i++)
+  {
+    if (enemies[i].health <= 0)
+    {
+      enemies[i] = *e;
+      return;
+    }
+  }
 }
 
 bool check_AABB(int x1, int y1, int w1, int h1, int x2, int y2, int w2, int h2)
@@ -53,8 +72,14 @@ void update_enemy_bullets()
   }
 }
 
-void handle_enemy_shooting(enemy* e, uint64_t current_time_ms)
+void handle_enemy_shooting(enemy* e, uint32_t current_time_ms)
 {
+    if (current_time_ms - e->time > 30000)
+    {
+        // current_time_ms = 0;
+        e->time = 0;
+    }
+    
   if (current_time_ms - e->time > 1000)
   {
     for (int i = 0; i < MAX_BULLETS; i++)
@@ -63,7 +88,7 @@ void handle_enemy_shooting(enemy* e, uint64_t current_time_ms)
         if (bullets[i].damage == 0)
         {
           bullets[i].damage = 1;           // Set damage to activate it
-          bullets[i].speed = PLAYER_BULLET_SPEED; 
+          bullets[i].speed = ENEMY_BULLET_SPEED;
           bullets[i].p.x = e->p.x + 1;     // Center bullet on the jet (adjust offset as needed)
           bullets[i].p.y = e->p.y + 3;     // Spawn slightly above the jet
 

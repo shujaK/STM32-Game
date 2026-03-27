@@ -3,7 +3,7 @@
 
 player player1;
 bullet player_bullets[MAX_PLAYER_BULLETS];
-uint64_t last_fire_time = 0;
+uint16_t last_fire_time = 0;
 
 void draw_player(frame *f, player *p)
 {
@@ -13,7 +13,7 @@ void draw_player(frame *f, player *p)
 
 void update_player(player *p, controls *c)
 {
-  p->velocity.x = c->joystick_x * 2; // scale the joystick input to control speed
+  p->velocity.x = c->joystick_x * 3; // scale the joystick input to control speed
   p->velocity.y = c->joystick_y * 5;
   p->p.x += p->velocity.x;
   p->p.y += p->velocity.y;

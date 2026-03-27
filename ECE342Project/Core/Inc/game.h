@@ -29,7 +29,7 @@ typedef struct
   int2d p;
   uint8_t health;
   int2d velocity;
-  uint8_t cooldown;
+  uint32_t cooldown;
 } player;
 
 typedef struct
@@ -37,7 +37,7 @@ typedef struct
   int2d p;
   uint8_t health;
   int2d velocity;
-  uint64_t time;
+  uint32_t time;
 } enemy;
 
 typedef enum
