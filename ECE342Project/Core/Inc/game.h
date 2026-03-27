@@ -52,25 +52,7 @@ typedef struct
   uint8_t speed;
 } bullet;
 
-extern enemy enemies[MAX_ENEMIES];
-extern bullet bullets[MAX_BULLETS];
-extern bullet player_bullets[MAX_PLAYER_BULLETS];
-extern player player1;
-
-void draw_enemy(frame *f, enemy *e);
-void draw_player(frame *f, player *p);
-void draw_bullet(frame *f, bullet *b);
-
 void draw_all(frame *f, player *p);
-void update_all();
-void update_player(player *p, controls *c);
-
-void init_bullets();
-void update_bullets();
-void handle_shooting(player *p, controls *c, uint32_t current_time_ms);
-
-void init_test_enemy();
-bool check_AABB(int x1, int y1, int w1, int h1, int x2, int y2, int w2, int h2);
-void update_enemy();
+void update_all(player *p, controls *c);
 
 #endif /* INC_GAME_H_ */
