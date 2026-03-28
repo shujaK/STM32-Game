@@ -11,32 +11,6 @@ void draw_player(frame *f, player *p)
   draw_sprite(f, p->p.x, p->p.y, advanced_jet_sprite, 8, 7, 7);
 }
 
-void update_player(player *p, controls *c)
-{
-  p->velocity.x = c->joystick_x * 3; // scale the joystick input to control speed
-  p->velocity.y = c->joystick_y * 5;
-  p->p.x += p->velocity.x;
-  p->p.y += p->velocity.y;
-
-  if (p->p.x >= IMG_COL - 5)
-  {
-    p->p.x = IMG_COL - 5;
-  }
-  if (p->p.y >= IMG_ROW - 5)
-  {
-    p->p.y = IMG_ROW - 5;
-  }
-  // also set min vals to 0
-  if (p->p.x < 5)
-  {
-    p->p.x = 5;
-  }
-  if (p->p.y < 5)
-  {
-    p->p.y = 5;
-  }
-}
-
 // Pass in your current system time (e.g., HAL_GetTick())
 // LATER: CREATE ANOTHER ARRAY FOR PLAYER BULLETS
 void handle_shooting(player *p, controls *c, uint64_t current_time_ms)
@@ -62,4 +36,33 @@ void handle_shooting(player *p, controls *c, uint64_t current_time_ms)
       }
     }
   }
+}
+
+void update_player(player *p, controls *c)
+{
+  p->velocity.x = c->joystick_x * 3; // scale the joystick input to control speed
+  p->velocity.y = c->joystick_y * 5;
+  p->p.x += p->velocity.x;
+  p->p.y += p->velocity.y;
+
+  if (p->p.x >= IMG_COL - 5)
+  {
+    p->p.x = IMG_COL - 5;
+  }
+  if (p->p.y >= IMG_ROW - 5)
+  {
+    p->p.y = IMG_ROW - 5;
+  }
+  // also set min vals to 0
+  if (p->p.x < 5)
+  {
+    p->p.x = 5;
+  }
+  if (p->p.y < 5)
+  {
+    p->p.y = 5;
+  }
+
+  uint64_t current_time_ms = (uint64_t)HAL_GetTick();
+  handle_shooting(p, c, current_time_ms);
 }

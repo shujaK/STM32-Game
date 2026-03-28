@@ -59,4 +59,9 @@ extern uint16_t score;
 void draw_all(frame *f, player *p);
 void update_all(player *p, controls *c);
 
+void game_random_seed(uint32_t seed);
+uint32_t game_random_u32(void);
+int game_random_range(int min, int max);
+
+
 #endif /* INC_GAME_H_ */

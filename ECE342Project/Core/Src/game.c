@@ -5,10 +5,18 @@
  *      Author: shuja
  */
 
+#include <cstdint>
+#include <stdbool.h>
+#include <stdint.h>
 #include "game.h"
 #include "enemy.h"
 #include "player.h"
 #include "bullet.h"
+#include "monitor.h"
+#include "controls.h"
+
+static uint32_t rng_state = 0x9E3779B9u; // Non-zero default seed
+static uint32_t total_enemies;
 
 uint16_t score = 0;
 bool game_start = false;
@@ -42,9 +50,30 @@ void update_all(player *p, controls *c){
   if (game_start)
   {
     update_player(p, c);
-    uint64_t current_time_ms = (uint64_t)HAL_GetTick();
-    handle_shooting(p, c, current_time_ms);
     update_bullets();
     update_enemy();
   }
+}
+
+void game_random_seed(uint32_t seed)
+{
+  rng_state = seed ? seed : 0x9E3779B9u;
+}
+
+uint32_t game_random_u32(void)
+{
+  uint32_t x = rng_state;
+  x ^= x << 13;
+  x ^= x >> 17;
+  x ^= x << 5;
+  rng_state = x;
+  return x;
+}
+
+int game_random_range(int min, int max)
+{
+  if (max <= min)
+    return min;
+  uint32_t span = (uint32_t)(max - min + 1);
+  return (int)(game_random_u32() % span) + min;
 }

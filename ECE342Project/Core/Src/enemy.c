@@ -1,6 +1,7 @@
 #include "enemy.h"
 #include "player.h"
 
+
 enemy enemies[MAX_ENEMIES];
 bullet bullets[MAX_BULLETS];
 
@@ -41,8 +42,26 @@ void spawn_enemy(enemy *e)
     if (enemies[i].health <= 0)
     {
       enemies[i] = *e;
+      total_enemies += 1;
       return;
     }
+  }
+}
+
+// spawn a wave of enemies with random positions and velocities
+void spawn_enemy_wave(int num_enemies)
+{
+  for (int i = 0; i < num_enemies; i++)
+  {
+    enemy e;
+    e.p.x = game_random_range(10, IMG_COL - 10);
+    e.p.y = game_random_range(10, ENEMY_SPAWN_RANGE_Y);
+    e.health = 1;
+    e.velocity.x = game_random_range(-1, 2);
+    e.velocity.y = game_random_range(-1, 2);
+    e.time = 0;
+
+    spawn_enemy(&e);
   }
 }
 
@@ -80,7 +99,7 @@ void handle_enemy_shooting(enemy* e, uint32_t current_time_ms)
         e->time = 0;
     }
     
-  if (current_time_ms - e->time > 1000)
+  if (current_time_ms - e->time > 1000 + game_random_range(-500, 500))
   {
     for (int i = 0; i < MAX_BULLETS; i++)
       {
@@ -117,7 +136,7 @@ void update_enemy()
         enemies[i].velocity.x *= -1;
       }
 
-      if ((enemies[i].p.y > 50) || enemies[i].p.y < enemy_h)
+      if ((enemies[i].p.y > ENEMY_SPAWN_RANGE_Y) || enemies[i].p.y < enemy_h)
       {
         enemies[i].velocity.y *= -1;
       }
@@ -139,7 +158,10 @@ void update_enemy()
           {
             // Collision hit!
             enemies[i].health -= 1; // Reduce enemy health (destroys it if health hits 0)
-            player_bullets[j].damage = 0;  // Deactivate the bullet
+            player_bullets[j].damage = 0; // Deactivate the bullet
+
+            score += 10; // Increase score for hitting an enemy
+            total_enemies -= 1;
 
             // Bullet is destroyed, so stop checking it against other enemies
             break;
