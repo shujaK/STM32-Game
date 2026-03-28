@@ -48,7 +48,7 @@ update_all (player *p, controls *c)
     {
       game_start = true;
     }
-  if (game_start)
+  if (true)
     {
       update_player (p, c);
       update_bullets ();

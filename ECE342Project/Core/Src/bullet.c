@@ -6,7 +6,7 @@
 void draw_bullet(frame *f, bullet *b)
 {
   // write_pixel(f, b->p.x, b->p.y, WHITE);
-  draw_sprite(f, b->p.x, b->p.y, bullet_sprite, 2, 1, 3);
+  draw_sprite(f, b->p.x, b->p.y, enemy_bullet_sprite, ENEMY_BULLET_SPRITE_WIDTH_PACKED, ENEMY_BULLET_SPRITE_WIDTH, ENEMY_BULLET_SPRITE_HEIGHT);
 }
 
 void draw_player_bullet(frame *f, bullet *b)

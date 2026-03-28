@@ -81,7 +81,7 @@ def print_c_output(byte_array, rows, cols, palette, name="sprite"):
     print(f"#define {macro_prefix}_WIDTH_PACKED {cols}")
     print(f"#define {macro_prefix}_HEIGHT {rows}")
 
-    print(f"const uint8_t {name}[{length}] = {{")
+    print(f"static const uint8_t {name}[{length}] = {{")
     for i, b in enumerate(byte_array):
         print(f"0x{b:02X},", end="")
         if (i + 1) % 16 == 0:

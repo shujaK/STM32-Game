@@ -11,34 +11,35 @@ draw_enemy (frame *f, enemy *e)
 {
 //    write_pixel(f, e->p.x, e->p.y, RED);
   draw_sprite (f, e->p.x, e->p.y, enemy_sprite, ENEMY_SPRITE_WIDTH_PACKED,
-	       ENEMY_SPRITE_WIDTH, ENEMY_SPRITE_HEIGHT);
+  ENEMY_SPRITE_WIDTH,
+	       ENEMY_SPRITE_HEIGHT);
 }
 
 void
 init_test_enemy ()
 {
-	int half_w = ENEMY_SPRITE_WIDTH / 2;
-	int x = IMG_COL / 2 - half_w; // Roughly centered horizontally
+  int half_w = ENEMY_SPRITE_WIDTH / 2;
+  int x = IMG_COL / 2 - half_w; // Roughly centered horizontally
 
   // Make sure all enemies are cleared out first
   for (int i = 0; i < MAX_ENEMIES; i++)
     {
       enemies[i].health = 0;
     }
-	total_enemies = 0;
+  total_enemies = 0;
 
   for (int i = 0; i < 5; i++)
     {
       enemy e;
       e.p.x = x;
-			e.p.y = ENEMY_SPAWN_RANGE_Y / 2;
+      e.p.y = ENEMY_SPAWN_RANGE_Y / 2;
       e.health = 1; // 1 hit point
       e.velocity.x = 1;
       e.velocity.y = 1;
       e.time = 0;
 
       spawn_enemy (&e);
-			x += ENEMY_SPRITE_WIDTH + 5;
+      x += ENEMY_SPRITE_WIDTH + 5;
     }
 }
 
@@ -63,15 +64,15 @@ spawn_enemy_wave (int num_enemies)
   for (int i = 0; i < num_enemies; i++)
     {
       enemy e;
-			int half_w = ENEMY_SPRITE_WIDTH / 2;
-			int half_h = ENEMY_SPRITE_HEIGHT / 2;
-			int max_x = IMG_COL - 1 - half_w;
-			int min_x = half_w;
-			int max_y = ENEMY_SPAWN_RANGE_Y;
-			int min_y = half_h;
+      int half_w = ENEMY_SPRITE_WIDTH / 2;
+      int half_h = ENEMY_SPRITE_HEIGHT / 2;
+      int max_x = IMG_COL - 1 - half_w;
+      int min_x = half_w;
+      int max_y = ENEMY_SPAWN_RANGE_Y;
+      int min_y = half_h;
 
-			e.p.x = game_random_range (min_x, max_x);
-			e.p.y = game_random_range (min_y, max_y);
+      e.p.x = game_random_range (min_x, max_x);
+      e.p.y = game_random_range (min_y, max_y);
       e.health = 1;
       e.velocity.x = game_random_range (-1, 2);
       e.velocity.y = game_random_range (-1, 2);
@@ -138,60 +139,76 @@ handle_enemy_shooting (enemy *e, uint32_t current_time_ms)
     }
 }
 
-// Use AABB to Check whether Enemies collide with bullets
+// Use AABB to check whether enemies collide with player bullets
 void
 update_enemy ()
 {
-	// Bounding boxes based on sprite dimensions
-	int bullet_w = PLAYER_BULLET_SPRITE_WIDTH;
-	int bullet_h = PLAYER_BULLET_SPRITE_HEIGHT;
-	int enemy_w = ENEMY_SPRITE_WIDTH;
-	int enemy_h = ENEMY_SPRITE_HEIGHT;
+  int bullet_w = PLAYER_BULLET_SPRITE_WIDTH;
+  int bullet_h = PLAYER_BULLET_SPRITE_HEIGHT;
+  int enemy_w = ENEMY_SPRITE_WIDTH;
+  int enemy_h = ENEMY_SPRITE_HEIGHT;
+
+  int half_w = ENEMY_SPRITE_WIDTH / 2;
+  int half_h = ENEMY_SPRITE_HEIGHT / 2;
+  int min_x = half_w;
+  int max_x = IMG_COL - 1 - half_w;
+  int min_y = half_h;
+  int max_y = ENEMY_SPAWN_RANGE_Y;
 
   for (int i = 0; i < MAX_ENEMIES; i++)
     {
-      if (enemies[i].health > 0)
+      enemy *e = &enemies[i];
+      if (e->health == 0)
+	continue;
+
+      e->p.x += e->velocity.x;
+      e->p.y += e->velocity.y;
+
+      if (e->p.x < min_x)
 	{
-	  if ((enemies[i].p.x > IMG_COL - enemy_w) || enemies[i].p.x < enemy_w)
+	  e->p.x = min_x;
+	  if (e->velocity.x < 0)
+	    e->velocity.x = -e->velocity.x;
+	}
+      else if (e->p.x > max_x)
+	{
+	  e->p.x = max_x;
+	  if (e->velocity.x > 0)
+	    e->velocity.x = -e->velocity.x;
+	}
+
+      if (e->p.y < min_y)
+	{
+	  e->p.y = min_y;
+	  if (e->velocity.y < 0)
+	    e->velocity.y = -e->velocity.y;
+	}
+      else if (e->p.y > max_y)
+	{
+	  e->p.y = max_y;
+	  if (e->velocity.y > 0)
+	    e->velocity.y = -e->velocity.y;
+	}
+
+      handle_enemy_shooting (e, (uint64_t) HAL_GetTick ());
+
+      for (int j = 0; j < MAX_PLAYER_BULLETS; j++)
+	{
+	  bullet *pb = &player_bullets[j];
+	  if (pb->damage == 0)
+	    continue;
+
+	  if (check_AABB (pb->p.x, pb->p.y, bullet_w, bullet_h, e->p.x, e->p.y,
+			  enemy_w, enemy_h))
 	    {
-	      enemies[i].velocity.x *= -1;
-	    }
-
-	  if ((enemies[i].p.y > ENEMY_SPAWN_RANGE_Y)
-	      || enemies[i].p.y < enemy_h)
-	    {
-	      enemies[i].velocity.y *= -1;
-	    }
-
-	  // Apply velocity
-	  enemies[i].p.x += enemies[i].velocity.x;
-	  enemies[i].p.y += enemies[i].velocity.y;
-
-	  uint64_t curr_time = (uint64_t) HAL_GetTick ();
-	  handle_enemy_shooting (&enemies[i], curr_time);
-
-	  // check bullet collision
-	  for (int j = 0; j < MAX_PLAYER_BULLETS; j++)
-	    {
-	      if (player_bullets[j].damage > 0)
-		{
-		  if (check_AABB (player_bullets[j].p.x, player_bullets[j].p.y,
-				  bullet_w, bullet_h,
-				  enemies[i].p.x, enemies[i].p.y, enemy_w, enemy_h))
-		    {
-		      // Collision hit!
-		      enemies[i].health -= 1; // Reduce enemy health (destroys it if health hits 0)
-		      player_bullets[j].damage = 0; // Deactivate the bullet
-
-		      score += 10; // Increase score for hitting an enemy
-		      total_enemies -= 1;
-
-		      // Bullet is destroyed, so stop checking it against other enemies
-		      break;
-		    }
-		}
+	      e->health -= 1;
+	      pb->damage = 0;
+	      score += 10;
+	      total_enemies -= 1;
+	      break;
 	    }
 	}
     }
+
   update_enemy_bullets ();
 }
