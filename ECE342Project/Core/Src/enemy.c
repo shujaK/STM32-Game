@@ -1,3 +1,4 @@
+#include <math.h>
 #include "enemy.h"
 #include "player.h"
 #include "sprite.h"
@@ -98,7 +99,10 @@ update_enemy_bullets ()
     {
       if (bullets[i].damage > 0)
 	{
-	  bullets[i].p.y += bullets[i].speed; // Move the bullet up the screen
+        bullets[i].p.y += bullets[i].speed;
+
+        double phase = (double) HAL_GetTick () / 200.0;
+        bullets[i].p.x += (int) (1.2*sin (phase/0.35 + i*bullets[i].speed));
 
 	  // Deactivate the bullet if it goes off the top edge of the screen
 	  // Assuming 0 is the top boundary
