@@ -5,10 +5,28 @@ player player1;
 bullet player_bullets[MAX_PLAYER_BULLETS];
 uint16_t last_fire_time = 0;
 
-void draw_player(frame *f, player *p)
-{
-  draw_sprite(f, p->p.x, p->p.y, player_sprite,
-              PLAYER_SPRITE_WIDTH_PACKED, PLAYER_SPRITE_WIDTH, PLAYER_SPRITE_HEIGHT);
+void draw_player(frame *f, player *p) {
+  if (p->velocity.x > 0.7)
+  {
+    draw_sprite(f, p->p.x, p->p.y, player_right_sprite, PLAYER_SPRITE_WIDTH_PACKED,
+                PLAYER_SPRITE_WIDTH, PLAYER_SPRITE_HEIGHT);
+  }
+  else if (p->velocity.x < -0.7)
+  {
+    draw_sprite(f, p->p.x, p->p.y, player_left_sprite, PLAYER_SPRITE_WIDTH_PACKED,
+                PLAYER_SPRITE_WIDTH, PLAYER_SPRITE_HEIGHT);
+  }
+  else
+  {
+    draw_sprite(f, p->p.x, p->p.y, player_sprite, PLAYER_SPRITE_WIDTH_PACKED,
+                PLAYER_SPRITE_WIDTH, PLAYER_SPRITE_HEIGHT);
+  }
+
+  if (p->velocity.y < -0.5)
+  {
+    draw_sprite(f, p->p.x, p->p.y + 12, booster_sprite, BOOSTER_SPRITE_WIDTH_PACKED,
+                BOOSTER_SPRITE_WIDTH, BOOSTER_SPRITE_HEIGHT);
+  }
 }
 
 // Pass in your current system time (e.g., HAL_GetTick())

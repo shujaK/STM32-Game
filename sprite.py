@@ -22,10 +22,11 @@ COLOUR_MAP = {
     0xC: (255, 70, 70),     # bright red
     0xD: (255, 196, 31),    # gold
     0xE: (0, 0, 0),         # unused / fallback
-    0xF: (0, 0, 0),         # reserved for header
+    0xF: (0, 0, 0),         # reserved for header (do not emit)
 }
 
-COLOR_TO_INDEX = {v: k for k, v in COLOUR_MAP.items()}
+# Exclude the reserved 0xF so black maps to 0x0 only.
+COLOR_TO_INDEX = {v: k for k, v in COLOUR_MAP.items() if k != 0xF}
 
 
 def sanitize_name(name: str) -> str:
@@ -35,11 +36,21 @@ def sanitize_name(name: str) -> str:
 
 
 def image_to_bytes(image: np.ndarray):
-    img_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    has_alpha = image.shape[2] == 4
+    img_rgb = cv2.cvtColor(
+        image,
+        cv2.COLOR_BGRA2RGB if has_alpha else cv2.COLOR_BGR2RGB,
+    )
     rows, cols, _ = img_rgb.shape
 
     pixels = np.full((rows, cols), fill_value=0x0, dtype=np.uint8)
     matched = np.zeros((rows, cols), dtype=bool)
+
+    if has_alpha:
+        alpha = image[:, :, 3]
+        transparent_mask = alpha == 0
+        pixels[transparent_mask] = 0x0
+        matched[transparent_mask] = True
 
     for color, idx in COLOR_TO_INDEX.items():
         mask = np.all(img_rgb == color, axis=-1)
@@ -95,7 +106,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     image_path = sys.argv[1]
-    image = cv2.imread(image_path)
+    image = cv2.imread(image_path, cv2.IMREAD_UNCHANGED)
     if image is None:
         print(f"Failed to read image: {image_path}", file=sys.stderr)
         sys.exit(1)
