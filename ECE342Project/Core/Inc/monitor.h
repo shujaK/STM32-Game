@@ -9,6 +9,7 @@
 #define INC_MONITOR_H_
 
 #include <string.h>
+#include <stdint.h>
 
 #include "usbd_cdc_if.h"
 #define USB_CHUNK 512
@@ -58,6 +59,8 @@ typedef enum
 static inline void
 write_pixel(frame *f, uint16_t x, uint16_t y, uint8_t value)
 {
+  if (x >= IMG_COL || y >= IMG_ROW)
+    return;
   value &= 0xF; // get 4 lsb
 
   uint16_t x_index = x >> 1; // x / 2

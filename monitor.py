@@ -15,21 +15,21 @@ HEADER = bytes([HEADER_BYTE] * HEADER_LEN)
 SCALE = 4
 
 COLOUR_MAP = {
-    0x0: (0, 0, 0),         # BLACK
-    0x1: (255, 255, 255),   # WHITE
-    0x2: (0, 0, 255),       # BLUE
-    0x3: (0, 255, 0),       # GREEN
-    0x4: (0, 255, 255),     # CYAN
-    0x5: (255, 0, 0),       # RED
-    0x6: (255, 0, 255),     # MAGENTA
-    0x7: (165, 42, 42),     # BROWN
-    0x8: (211, 211, 211),   # LIGHTGRAY
-    0x9: (105, 105, 105),   # DARKGRAY
-    0xA: (173, 216, 230),   # LIGHTBLUE
-    0xB: (144, 238, 144),   # LIGHTGREEN
-    0xC: (224, 255, 255),   # LIGHTCYAN
-    0xD: (255, 182, 182),   # LIGHTRED 
-    0xE: (255, 160, 255),   # LIGHTMAGENTA
+    0x0: (0, 0, 0),         # black / background
+    0x1: (32, 163, 248),    # sky blue
+    0x2: (40, 24, 19),      # dark leather
+    0x3: (104, 222, 238),   # aqua highlight
+    0x4: (111, 41, 174),    # violet
+    0x5: (114, 95, 101),    # muted mauve
+    0x6: (129, 55, 55),     # deep brown-red
+    0x7: (158, 19, 40),     # crimson
+    0x8: (182, 166, 150),   # warm gray
+    0x9: (201, 87, 209),    # orchid
+    0xA: (230, 115, 0),     # amber
+    0xB: (242, 241, 240),   # off-white
+    0xC: (255, 70, 70),     # bright red
+    0xD: (255, 196, 31),    # gold
+    0xE: (0, 0, 0),         # unused / fallback
     0xF: (0, 0, 0),         # reserved for header
 }
 

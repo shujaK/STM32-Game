@@ -23,6 +23,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "game.h"
+#include "bullet.h"
+#include "enemy.h"
 #include "monitor.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -109,6 +111,7 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   game_random_seed(HAL_GetTick()*64);
+  score = 0;
       
   frame f;
 

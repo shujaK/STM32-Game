@@ -7,8 +7,8 @@ uint16_t last_fire_time = 0;
 
 void draw_player(frame *f, player *p)
 {
-  // draw_sprite(f, p->p.x, p->p.y, jet_sprite, 6, 5, 5);
-  draw_sprite(f, p->p.x, p->p.y, advanced_jet_sprite, 8, 7, 7);
+  draw_sprite(f, p->p.x, p->p.y, player_sprite,
+              PLAYER_SPRITE_WIDTH_PACKED, PLAYER_SPRITE_WIDTH, PLAYER_SPRITE_HEIGHT);
 }
 
 // Pass in your current system time (e.g., HAL_GetTick())
