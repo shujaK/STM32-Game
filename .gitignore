@@ -21,6 +21,7 @@ Release/
 # Temporary / autosave
 *.tmp
 *.bak
+*.kra
 
 # CMake builds (if ever generated)
 build/

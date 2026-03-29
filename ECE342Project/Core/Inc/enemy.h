@@ -5,6 +5,8 @@
 
 extern enemy enemies[MAX_ENEMIES];
 extern bullet bullets[MAX_BULLETS];
+extern uint32_t total_enemies;
+extern uint32_t wave_complete_time;
 
 #define SM_ENEMY_BB
 #define ENEMY_BULLET_SPEED 3

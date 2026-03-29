@@ -5,7 +5,8 @@
 
 enemy enemies[MAX_ENEMIES];
 bullet bullets[MAX_BULLETS];
-static uint32_t total_enemies;
+uint32_t total_enemies;
+uint32_t wave_complete_time;
 
 void
 draw_enemy (frame *f, enemy *e)
@@ -69,14 +70,16 @@ spawn_enemy_wave (int num_enemies)
       int half_h = ENEMY_SPRITE_HEIGHT / 2;
       int max_x = IMG_COL - 1 - half_w;
       int min_x = half_w;
-      int max_y = ENEMY_SPAWN_RANGE_Y;
-      int min_y = half_h;
+
+      // Spawn just above the visible area so enemies fly in from off-screen
+      int max_y = -half_h;              // top edge just off-screen
+      int min_y = -ENEMY_SPRITE_HEIGHT; // fully off-screen
 
       e.p.x = game_random_range (min_x, max_x);
       e.p.y = game_random_range (min_y, max_y);
       e.health = 1;
       e.velocity.x = game_random_range (-1, 2);
-      e.velocity.y = game_random_range (-1, 2);
+      e.velocity.y = game_random_range (1, 3); // ensure downward motion onto screen
       e.time = 0;
 
       spawn_enemy (&e);
@@ -209,6 +212,7 @@ update_enemy ()
 	      pb->damage = 0;
 	      score += 10;
 	      total_enemies -= 1;
+	      if (total_enemies <= 0) wave_complete_time = HAL_GetTick();
 	      break;
 	    }
 	}
