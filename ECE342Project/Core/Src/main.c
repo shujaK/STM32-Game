@@ -129,7 +129,6 @@ main (void)
   controls *PlayerControl = malloc (sizeof(controls));
   init_bullets ();
   // init_test_enemy();
-  int wave_num = 1;
   total_enemies = 0;
 
   while (1)

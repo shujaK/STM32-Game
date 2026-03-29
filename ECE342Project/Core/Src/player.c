@@ -44,7 +44,8 @@ void handle_shooting(player *p, controls *c, uint64_t current_time_ms)
         if (player_bullets[i].damage == 0)
         {
           player_bullets[i].damage = 1;           // Set damage to activate it
-          player_bullets[i].speed = PLAYER_BULLET_SPEED; 
+          player_bullets[i].velocity.x = 0;
+          player_bullets[i].velocity.y = -PLAYER_BULLET_SPEED; // upward motion
           player_bullets[i].p.x = p->p.x + 1;     // Center bullet on the jet (adjust offset as needed)
           player_bullets[i].p.y = p->p.y - 3;     // Spawn slightly above the jet
 

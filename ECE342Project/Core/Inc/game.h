@@ -42,7 +42,7 @@ typedef struct
 
 typedef enum
 {
-  SMALL = 0,
+  SMALL = 1,
   MEDIUM,
   LARGE
 } enemy_type;
@@ -51,7 +51,7 @@ typedef struct
 {
   int2d p;
   uint8_t damage;
-  uint8_t speed;
+  int2d velocity;
 } bullet;
 
 extern uint16_t score;

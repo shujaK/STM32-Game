@@ -7,6 +7,7 @@ enemy enemies[MAX_ENEMIES];
 bullet bullets[MAX_BULLETS];
 uint32_t total_enemies;
 uint32_t wave_complete_time;
+uint16_t wave_num;
 
 void
 draw_enemy (frame *f, enemy *e)
@@ -61,29 +62,44 @@ spawn_enemy (enemy *e)
 
 // spawn a wave of enemies with random positions and velocities
 void
-spawn_enemy_wave (int num_enemies)
+spawn_enemy_wave(int num_enemies)
 {
-  for (int i = 0; i < num_enemies; i++)
-    {
-      enemy e;
-      int half_w = ENEMY_SPRITE_WIDTH / 2;
-      int half_h = ENEMY_SPRITE_HEIGHT / 2;
-      int max_x = IMG_COL - 1 - half_w;
-      int min_x = half_w;
+  for (int i = 0; i < num_enemies; i++) {
+    enemy e;
+    int half_w = ENEMY_SPRITE_WIDTH / 2;
+    int half_h = ENEMY_SPRITE_HEIGHT / 2;
+    int max_x = IMG_COL - 1 - half_w;
+    int min_x = half_w;
 
-      // Spawn just above the visible area so enemies fly in from off-screen
-      int max_y = -half_h;              // top edge just off-screen
-      int min_y = -ENEMY_SPRITE_HEIGHT; // fully off-screen
+    // Spawn just above the visible area so enemies fly in from off-screen
+    int max_y = -half_h;              // top edge just off-screen
+    int min_y = -ENEMY_SPRITE_HEIGHT; // fully off-screen
 
-      e.p.x = game_random_range (min_x, max_x);
-      e.p.y = game_random_range (min_y, max_y);
+    e.p.x = game_random_range(min_x, max_x);
+    e.p.y = game_random_range(min_y, max_y);
+    if (wave_num > 15) {
+      // 10% chance to be toughest (health 3), 30% medium (health 2), otherwise 1 HP
+      int roll = game_random_range(1, 10);
+      if (roll <= 1) {
+        e.health = 3;
+      } else if (roll <= 4) {
+        e.health = 2;
+      } else {
+        e.health = 1;
+      }
+    } else if (wave_num > 5) {
+      // 30% chance to be tougher (health 2), otherwise 1 HP
+      e.health = (game_random_range(1, 10) <= 3) ? 2 : 1;
+    } else {
       e.health = 1;
-      e.velocity.x = game_random_range (-1, 2);
-      e.velocity.y = game_random_range (1, 3); // ensure downward motion onto screen
-      e.time = 0;
-
-      spawn_enemy (&e);
     }
+    e.velocity.x = game_random_range(-1, 2);
+    e.velocity.y =
+      game_random_range(1, 3); // ensure downward motion onto screen
+    e.time = 0;
+
+    spawn_enemy(&e);
+  }
 }
 
 bool
@@ -102,10 +118,14 @@ update_enemy_bullets ()
     {
       if (bullets[i].damage > 0)
 	{
-        bullets[i].p.y += bullets[i].speed;
+	  bullets[i].p.x += bullets[i].velocity.x;
+	  bullets[i].p.y += bullets[i].velocity.y;
 
-        double phase = (double) HAL_GetTick () / 200.0;
-        bullets[i].p.x += (int) (1.2*sin (phase/0.35 + i*bullets[i].speed));
+	  double phase = (double) HAL_GetTick () / 200.0;
+	  int speed_mag =
+	      bullets[i].velocity.y >= 0 ?
+		  bullets[i].velocity.y : -bullets[i].velocity.y;
+	  bullets[i].p.x += (int) (1.2 * sin (phase / 0.35 + i * speed_mag));
 
 	  // Deactivate the bullet if it goes off the top edge of the screen
 	  // Assuming 0 is the top boundary
@@ -127,22 +147,66 @@ handle_enemy_shooting (enemy *e, uint32_t current_time_ms)
       e->time = 0;
     }
 
-  if (current_time_ms - e->time > 1000 + game_random_range (-500, 500))
+  uint32_t cooldown_ms = 1000 + game_random_range (-500, 500);
+  if (e->health == 2)
     {
-      for (int i = 0; i < MAX_BULLETS; i++)
-	{
-	  // We use damage == 0 to represent an inactive bullet
-	  if (bullets[i].damage == 0)
-	    {
-	      bullets[i].damage = 1;           // Set damage to activate it
-	      bullets[i].speed = ENEMY_BULLET_SPEED;
-	      bullets[i].p.x = e->p.x + 1; // Center bullet on the jet (adjust offset as needed)
-	      bullets[i].p.y = e->p.y + 3;     // Spawn slightly above the jet
+      cooldown_ms = 5000 + game_random_range (-1000, 1000); // 5 second burst cooldown for tougher enemies
+    }
 
-	      e->time = current_time_ms;
-	      break;                 // Stop searching after spawning one bullet
+  if (current_time_ms - e->time > cooldown_ms)
+    {
+      // Tougher enemies (health == 2) emit a radial burst
+      if (e->health == 2)
+	{
+	  const int bullet_count = 10;
+	  const double two_pi = 6.28318530717958647692;
+	  const double radius = 3.0; // small offset so bullets start outside the sprite
+	  int spawned = 0;
+
+	  for (int i = 0; i < MAX_BULLETS && spawned < bullet_count; i++)
+	    {
+	      if (bullets[i].damage != 0)
+		continue;
+
+	      double theta = (two_pi * spawned) / bullet_count;
+	      double dir_x = cos (theta);
+	      double dir_y = sin (theta);
+
+	      int vx = (int) round (ENEMY_BULLET_SPEED * dir_x);
+	      int vy = (int) round (ENEMY_BULLET_SPEED * dir_y);
+	      if (vx == 0 && vy == 0)
+		{
+		  vy = ENEMY_BULLET_SPEED; // ensure movement if rounding zeroes both components
+		}
+
+	      bullets[i].damage = 2;
+	      bullets[i].velocity.x = vx;
+	      bullets[i].velocity.y = vy;
+	      bullets[i].p.x = e->p.x + (int) round (radius * dir_x);
+	      bullets[i].p.y = e->p.y + (int) round (radius * dir_y);
+
+	      spawned += 1;
 	    }
 	}
+      else
+	{
+	  for (int i = 0; i < MAX_BULLETS; i++)
+	    {
+	      // We use damage == 0 to represent an inactive bullet
+	      if (bullets[i].damage == 0)
+		{
+		  bullets[i].damage = 1;           // Set damage to activate it
+		  bullets[i].velocity.x = 0;
+		  bullets[i].velocity.y = ENEMY_BULLET_SPEED;
+		  bullets[i].p.x = e->p.x + 1; // Center bullet on the jet (adjust offset as needed)
+		  bullets[i].p.y = e->p.y + 3;   // Spawn slightly above the jet
+
+		  break;             // Stop searching after spawning one bullet
+		}
+	    }
+	}
+
+      e->time = current_time_ms;
     }
 }
 
@@ -210,10 +274,14 @@ update_enemy ()
 	    {
 	      e->health -= 1;
 	      pb->damage = 0;
-	      score += 10;
-	      total_enemies -= 1;
-	      if (total_enemies <= 0) wave_complete_time = HAL_GetTick();
-	      break;
+	      if (e->health == 0)
+		{
+		  score += 10;
+		  total_enemies -= 1;
+		  if (total_enemies <= 0)
+		    wave_complete_time = HAL_GetTick ();
+		  break;
+		}
 	    }
 	}
     }
