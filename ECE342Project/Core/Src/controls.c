@@ -37,62 +37,63 @@ volatile bool flag_bomb = false;
 /* -------------------------------------------------------------------------- */
 /* 2. THE FRAME UPDATER (Game Loop Level)                                     */
 /* -------------------------------------------------------------------------- */
-void update_controls(controls *c)
+void
+update_controls (controls *c)
 {
-    char buff[100];
-    // Transfer the hardware flags into your game struct
-    c->button_shoot = flag_shoot;
+  char buff[100];
+  // Transfer the hardware flags into your game struct
+  c->button_shoot = flag_shoot;
 
-    c->button_bomb = flag_bomb;
+  c->button_bomb = flag_bomb;
 
-    if (flag_shoot)
+  if (flag_shoot)
     {
-        // print_msg("Shoot Pressed\n");
+      // print_msg("Shoot Pressed\n");
     }
 
-    if (flag_bomb)
+  if (flag_bomb)
     {
-        // print_msg("Bomb Pressed\n");
+      // print_msg("Bomb Pressed\n");
     }
 
-    // Reset the flags so the weapon doesn't fire infinitely
-    flag_shoot = false;
-    flag_bomb = false;
+  // Reset the flags so the weapon doesn't fire infinitely
+  flag_shoot = false;
+  flag_bomb = false;
 
-    // --- JOYSTICK (ADC POLLING) ---
-    // Start the ADC
-    HAL_ADC_Start(&hadc1);
+  // --- JOYSTICK (ADC POLLING) ---
+  // Start the ADC
+  HAL_ADC_Start (&hadc1);
 
-    // Wait for Rank 1 (X-Axis) and read it
-    HAL_ADC_PollForConversion(&hadc1, 10);
-    uint32_t raw_x = HAL_ADC_GetValue(&hadc1);
+  // Wait for Rank 1 (X-Axis) and read it
+  HAL_ADC_PollForConversion (&hadc1, 10);
+  uint32_t raw_x = HAL_ADC_GetValue (&hadc1);
 
-    // Wait for Rank 2 (Y-Axis) and read it
-    HAL_ADC_Start(&hadc1);
-    HAL_ADC_PollForConversion(&hadc1, 10);
-    uint32_t raw_y = HAL_ADC_GetValue(&hadc1);
+  // Wait for Rank 2 (Y-Axis) and read it
+  HAL_ADC_Start (&hadc1);
+  HAL_ADC_PollForConversion (&hadc1, 10);
+  uint32_t raw_y = HAL_ADC_GetValue (&hadc1);
 
-    // sprintf(buff, "X: %d, Y: %d\n", raw_x, raw_y);
-    // print_msg(buff);
-    // Stop the ADC
-    HAL_ADC_Stop(&hadc1);
+  // sprintf(buff, "X: %d, Y: %d\n", raw_x, raw_y);
+  // print_msg(buff);
+  // Stop the ADC
+  HAL_ADC_Stop (&hadc1);
 
-    // --- JOYSTICK MATH (Normalization & Deadzone) ---
-    // The ADC reads 0 to 4095. Center is roughly 2048.
-    // We want to normalize this to a float between -1.0f and 1.0f
-    float norm_x = (raw_x - 2002.0f) / 2002.0f;
-    float norm_y = (raw_y - 2040.0f) / 2040.0f;
+  // --- JOYSTICK MATH (Normalization & Deadzone) ---
+  // The ADC reads 0 to 4095. Center is roughly 2048.
+  // We want to normalize this to a float between -1.0f and 1.0f
+  float norm_x = (raw_x - 2002.0f) / 2002.0f;
+  float norm_y = (raw_y - 2040.0f) / 2040.0f;
 
-    // Apply a 15% deadzone to stop the plane from drifting when you let go
-    if (norm_x > -0.05f && norm_x < 0.05f)
-        norm_x = 0.0f;
-    if (norm_y > -0.05f && norm_y < 0.05f)
-        norm_y = 0.0f;
+  // Apply a 15% deadzone to stop the plane from drifting when you let go
+  if (norm_x > -0.05f && norm_x < 0.05f)
+    norm_x = 0.0f;
+  if (norm_y > -0.05f && norm_y < 0.05f)
+    norm_y = 0.0f;
 
-    // norm_x *= -1.0f;
-    c->joystick_x = norm_x;
-    c->joystick_y = norm_y;
+  // norm_x *= -1.0f;
+  c->joystick_x = norm_x;
+  c->joystick_y = norm_y;
 
-    // sprintf(buff, "X: %.5f, Y: %.5f\n", norm_x, norm_y);
-    // print_msg(buff);
+  // sprintf(buff, "X: %.5f, Y: %.5f\n", norm_x, norm_y);
+  // print_msg(buff);
 }

@@ -25,6 +25,7 @@
 #include "game.h"
 #include "bullet.h"
 #include "enemy.h"
+#include "player.h"
 #include "monitor.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -123,8 +124,8 @@ main (void)
 
   player player1 =
     { .p =
-      { .x = 50, .y = 106 }, .health = 100, .velocity =
-      { 0, 0 }, .cooldown = 0 };
+      { .x = 90, .y = 240 }, .health = 5, .velocity =
+      { 0, 0 }, .cooldown = 0, .special_available = true };
 
   controls *PlayerControl = malloc (sizeof(controls));
   init_bullets ();
@@ -141,7 +142,7 @@ main (void)
       draw_all (&f, &player1);
       send_frame (&f);
 
-      if ((total_enemies <= 0) && (HAL_GetTick() - wave_complete_time >= 2000))
+      if ((total_enemies <= 0) && (HAL_GetTick () - wave_complete_time >= 2000))
 	{
 	  wave_complete_time = HAL_GetTick ();
 	  total_enemies = 0;

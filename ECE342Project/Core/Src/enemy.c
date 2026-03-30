@@ -4,7 +4,7 @@
 #include "sprite.h"
 
 enemy enemies[MAX_ENEMIES];
-bullet bullets[MAX_BULLETS];
+bullet enemy_bullets[MAX_BULLETS];
 uint32_t total_enemies;
 uint32_t wave_complete_time;
 uint16_t wave_num;
@@ -39,7 +39,7 @@ init_test_enemy ()
       e.health = 1; // 1 hit point
       e.velocity.x = 1;
       e.velocity.y = 1;
-      e.time = 0;
+      e.time = HAL_GetTick();
 
       spawn_enemy (&e);
       x += ENEMY_SPRITE_WIDTH + 5;
@@ -116,23 +116,23 @@ update_enemy_bullets ()
 {
   for (int i = 0; i < MAX_BULLETS; i++)
     {
-      if (bullets[i].damage > 0)
+      if (enemy_bullets[i].damage > 0)
 	{
-	  bullets[i].p.x += bullets[i].velocity.x;
-	  bullets[i].p.y += bullets[i].velocity.y;
+	  enemy_bullets[i].p.x += enemy_bullets[i].velocity.x;
+	  enemy_bullets[i].p.y += enemy_bullets[i].velocity.y;
 
 	  double phase = (double) HAL_GetTick () / 200.0;
 	  int speed_mag =
-	      bullets[i].velocity.y >= 0 ?
-		  bullets[i].velocity.y : -bullets[i].velocity.y;
-	  bullets[i].p.x += (int) (1.2 * sin (phase / 0.35 + i * speed_mag));
+	      enemy_bullets[i].velocity.y >= 0 ?
+		  enemy_bullets[i].velocity.y : -enemy_bullets[i].velocity.y;
+	  enemy_bullets[i].p.x += (int) (1.2 * sin (phase / 0.35 + i * speed_mag));
 
 	  // Deactivate the bullet if it goes off the top edge of the screen
 	  // Assuming 0 is the top boundary
-	  if (bullets[i].p.y
-	      > IMG_ROW - 5|| bullets[i].p.x < 0 || bullets[i].p.x > IMG_COL)
+	  if (enemy_bullets[i].p.y
+	      > IMG_ROW - 5|| enemy_bullets[i].p.x < 0 || enemy_bullets[i].p.x > IMG_COL)
 	    {
-	      bullets[i].damage = 0;
+	      enemy_bullets[i].damage = 0;
 	    }
 	}
     }
@@ -165,7 +165,7 @@ handle_enemy_shooting (enemy *e, uint32_t current_time_ms)
 
 	  for (int i = 0; i < MAX_BULLETS && spawned < bullet_count; i++)
 	    {
-	      if (bullets[i].damage != 0)
+	      if (enemy_bullets[i].damage != 0)
 		continue;
 
 	      double theta = (two_pi * spawned) / bullet_count;
@@ -179,11 +179,11 @@ handle_enemy_shooting (enemy *e, uint32_t current_time_ms)
 		  vy = ENEMY_BULLET_SPEED; // ensure movement if rounding zeroes both components
 		}
 
-	      bullets[i].damage = 2;
-	      bullets[i].velocity.x = vx;
-	      bullets[i].velocity.y = vy;
-	      bullets[i].p.x = e->p.x + (int) round (radius * dir_x);
-	      bullets[i].p.y = e->p.y + (int) round (radius * dir_y);
+	      enemy_bullets[i].damage = 2;
+	      enemy_bullets[i].velocity.x = vx;
+	      enemy_bullets[i].velocity.y = vy;
+	      enemy_bullets[i].p.x = e->p.x + (int) round (radius * dir_x);
+	      enemy_bullets[i].p.y = e->p.y + (int) round (radius * dir_y);
 
 	      spawned += 1;
 	    }
@@ -193,13 +193,13 @@ handle_enemy_shooting (enemy *e, uint32_t current_time_ms)
 	  for (int i = 0; i < MAX_BULLETS; i++)
 	    {
 	      // We use damage == 0 to represent an inactive bullet
-	      if (bullets[i].damage == 0)
+	      if (enemy_bullets[i].damage == 0)
 		{
-		  bullets[i].damage = 1;           // Set damage to activate it
-		  bullets[i].velocity.x = 0;
-		  bullets[i].velocity.y = ENEMY_BULLET_SPEED;
-		  bullets[i].p.x = e->p.x + 1; // Center bullet on the jet (adjust offset as needed)
-		  bullets[i].p.y = e->p.y + 3;   // Spawn slightly above the jet
+		  enemy_bullets[i].damage = 1;           // Set damage to activate it
+		  enemy_bullets[i].velocity.x = 0;
+		  enemy_bullets[i].velocity.y = ENEMY_BULLET_SPEED;
+		  enemy_bullets[i].p.x = e->p.x + 1; // Center bullet on the jet (adjust offset as needed)
+		  enemy_bullets[i].p.y = e->p.y + 3;   // Spawn slightly above the jet
 
 		  break;             // Stop searching after spawning one bullet
 		}
@@ -216,14 +216,11 @@ update_enemy ()
 {
   int bullet_w = PLAYER_BULLET_SPRITE_WIDTH;
   int bullet_h = PLAYER_BULLET_SPRITE_HEIGHT;
-  int enemy_w = ENEMY_SPRITE_WIDTH;
-  int enemy_h = ENEMY_SPRITE_HEIGHT;
 
   int half_w = ENEMY_SPRITE_WIDTH / 2;
-  int half_h = ENEMY_SPRITE_HEIGHT / 2;
   int min_x = half_w;
   int max_x = IMG_COL - 1 - half_w;
-  int min_y = half_h;
+  int min_y = ENEMY_SPRITE_HEIGHT / 2;
   int max_y = ENEMY_SPAWN_RANGE_Y;
 
   for (int i = 0; i < MAX_ENEMIES; i++)
@@ -270,7 +267,7 @@ update_enemy ()
 	    continue;
 
 	  if (check_AABB (pb->p.x, pb->p.y, bullet_w, bullet_h, e->p.x, e->p.y,
-			  enemy_w, enemy_h))
+        ENEMY_SPRITE_WIDTH, ENEMY_SPRITE_HEIGHT))
 	    {
 	      e->health -= 1;
 	      pb->damage = 0;

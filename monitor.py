@@ -12,7 +12,7 @@ FRAME_BYTES = (IMG_COL * IMG_ROW) // 2
 HEADER_BYTE = 0xFF
 HEADER_LEN = 4
 HEADER = bytes([HEADER_BYTE] * HEADER_LEN)
-SCALE = 4
+SCALE = 2
 
 COLOUR_MAP = {
     0x0: (0, 0, 0),         # black / background
@@ -99,24 +99,31 @@ while True:
         fps = inst_fps if fps == 0.0 else (0.9 * fps + 0.1 * inst_fps)
     last_time = now
 
+    # cv2.putText(
+    #     img_rgb,
+    #     f"FPS: {fps:.1f}",
+    #     (6, 18),
+    #     cv2.FONT_HERSHEY_SIMPLEX,
+    #     0.5,
+    #     (255, 255, 255),
+    #     1,
+    #     cv2.LINE_AA,
+    # )
+    score_text = f"{score}"
+    text_scale = 0.25
+    text_thickness = 1
+    (text_w, text_h), _ = cv2.getTextSize(score_text, cv2.FONT_HERSHEY_SIMPLEX, text_scale, text_thickness)
+    text_x = max(0, IMG_COL - text_w - 6)
+    text_y = 6 + text_h
+
     cv2.putText(
         img_rgb,
-        f"FPS: {fps:.1f}",
-        (6, 18),
+        score_text,
+        (text_x, text_y),
         cv2.FONT_HERSHEY_SIMPLEX,
-        0.5,
+        text_scale,
         (255, 255, 255),
-        1,
-        cv2.LINE_AA,
-    )
-    cv2.putText(
-        img_rgb,
-        f"Score: {score}",
-        (6, 36),
-        cv2.FONT_HERSHEY_SIMPLEX,
-        0.5,
-        (255, 255, 255),
-        1,
+        text_thickness,
         cv2.LINE_AA,
     )
 
