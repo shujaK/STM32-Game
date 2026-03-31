@@ -10,14 +10,12 @@
 void
 send_frame (frame *f)
 {
-  // send header
   uint8_t header[HEADER_LEN] =
     { HEADER_BYTE, HEADER_BYTE, HEADER_BYTE, HEADER_BYTE };
   while (CDC_Transmit_FS (header, HEADER_LEN) == USBD_BUSY)
     {
     }
 
-  // send score
   uint8_t *score_buf = (uint8_t*) &f->score;
   while (CDC_Transmit_FS (score_buf, 2) == USBD_BUSY)
     {
@@ -27,7 +25,6 @@ send_frame (frame *f)
   uint32_t remaining = sizeof(f->data);
   uint32_t offset = 0;
 
-  // transmit bytes
   while (remaining > 0)
     {
       uint16_t chunk = (remaining > USB_CHUNK) ? USB_CHUNK : remaining;

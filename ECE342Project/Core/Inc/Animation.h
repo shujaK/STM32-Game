@@ -3,22 +3,20 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "game.h"     // For int2d and frame types
+#include "game.h"
 #include "monitor.h"
 
 #define MAX_EXPLOSIONS 10
 #define EXPLOSION_FRAMES 6
-#define ANIMATION_SPEED_MS 50 // Milliseconds between each frame
+#define ANIMATION_SPEED_MS 50
 
 typedef struct
 {
-  int2d p;               // x, y coordinates
-  uint8_t current_frame; // 0 to EXPLOSION_FRAMES - 1
-  bool active;           // Is this animation currently playing?
-  uint32_t last_update;  // Time when the frame last changed
+  int2d p;
+  uint8_t current_frame;
+  bool active;
+  uint32_t last_update;
 } explosion_anim;
-
-// Global pool of explosions
 extern explosion_anim explosions[MAX_EXPLOSIONS];
 
 void init_animations();

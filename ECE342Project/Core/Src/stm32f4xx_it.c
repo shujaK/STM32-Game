@@ -216,9 +216,9 @@ void
 EXTI15_10_IRQHandler (void)
 {
   /* USER CODE BEGIN EXTI15_10_IRQn 0 */
-  uint32_t current_time = HAL_GetTick (); // Get current time in ms
-  const uint32_t DEBOUNCE_DELAY = 200;    // 200 milliseconds debounce window
-  const uint32_t SHOOT_CD = 200;    // 200 milliseconds debounce window
+  uint32_t current_time = HAL_GetTick ();
+  const uint32_t DEBOUNCE_DELAY = 200;
+  const uint32_t SHOOT_CD = 200;
   static uint32_t last_bomb_time = 0;
   static uint32_t last_shoot_time = 0;
 
@@ -233,7 +233,6 @@ EXTI15_10_IRQHandler (void)
 
   if (__HAL_GPIO_EXTI_GET_FLAG(BTN_BOMB_Pin))
     {
-      // flag_bomb = true;
       if ((current_time - last_bomb_time) > DEBOUNCE_DELAY)
 	{
 	  flag_bomb = true;
@@ -243,8 +242,6 @@ EXTI15_10_IRQHandler (void)
 
   if (__HAL_GPIO_EXTI_GET_FLAG(BTN_PAUSE_Pin))
     {
-      // flag_shoot = true;
-
     }
   /* USER CODE END EXTI15_10_IRQn 0 */
   HAL_GPIO_EXTI_IRQHandler (BTN_PAUSE_Pin);

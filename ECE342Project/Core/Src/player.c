@@ -1,6 +1,7 @@
 #include "player.h"
 #include "sprite.h"
 #include "enemy.h"
+#include <math.h>
 
 #define PLAYER_START_X 90
 #define PLAYER_START_Y 240
@@ -64,29 +65,26 @@ draw_player (frame *f, player *p)
     }
 }
 
-// Pass in your current system time (e.g., HAL_GetTick())
-// LATER: CREATE ANOTHER ARRAY FOR PLAYER BULLETS
 void
 handle_shooting (player *p, controls *c, uint64_t current_time_ms)
 {
   if (c->button_shoot)
     {
-      // Check if 200ms have passed since the last shot
       if ((current_time_ms - last_fire_time) >= FIRE_COOLDOWN_MS)
 	{
 	  for (int i = 0; i < MAX_PLAYER_BULLETS; i++)
 	    {
-	      // We use damage == 0 to represent an inactive bullet
+        /* damage == 0 marks an unused player bullet slot */
 	      if (player_bullets[i].damage == 0)
 		{
-		  player_bullets[i].damage = 1;     // Set damage to activate it
+      player_bullets[i].damage = 1;
 		  player_bullets[i].velocity.x = 0;
-		  player_bullets[i].velocity.y = -PLAYER_BULLET_SPEED; // upward motion
-		  player_bullets[i].p.x = p->p.x + 1; // Center bullet on the jet (adjust offset as needed)
-		  player_bullets[i].p.y = p->p.y - 3; // Spawn slightly above the jet
+      player_bullets[i].velocity.y = -PLAYER_BULLET_SPEED;
+      player_bullets[i].p.x = p->p.x + 1;
+      player_bullets[i].p.y = p->p.y - 3;
 
 		  last_fire_time = current_time_ms;
-		  break;             // Stop searching after spawning one bullet
+      break;
 		}
 	    }
 	}
@@ -130,8 +128,20 @@ handle_shooting (player *p, controls *c, uint64_t current_time_ms)
 void
 update_player (player *p, controls *c)
 {
-  p->velocity.x = c->joystick_x * 4; // scale the joystick input to control speed
-  p->velocity.y = c->joystick_y * 5;
+  float raw_vx = c->joystick_x * 4.0f;
+  float raw_vy = c->joystick_y * 5.0f;
+  float speed = sqrtf (raw_vx * raw_vx + raw_vy * raw_vy);
+  const float max_speed = 5.0f;
+  // normalize diagonal movemetn
+  if (speed > max_speed)
+    {
+      float scale = max_speed / speed;
+      raw_vx *= scale;
+      raw_vy *= scale;
+    }
+
+  p->velocity.x = raw_vx;
+  p->velocity.y = raw_vy;
   p->p.x += p->velocity.x;
   p->p.y += p->velocity.y;
 
@@ -143,7 +153,6 @@ update_player (player *p, controls *c)
     {
       p->p.y = IMG_ROW - 5;
     }
-  // also set min vals to 0
   if (p->p.x < 5)
     {
       p->p.x = 5;
@@ -156,13 +165,10 @@ update_player (player *p, controls *c)
   uint64_t current_time_ms = (uint64_t) HAL_GetTick ();
   handle_shooting (p, c, current_time_ms);
 
-  // loop over all enemy bullets and check for collisions with the player, if so
-  // reduce health by 1 and remove the bullet (set damage to 0)
   for (int i = 0; i < MAX_BULLETS; i++)
     {
       if (enemy_bullets[i].damage > 0)
 	{
-	  // Check collision with player using AABB
 	  if (check_AABB (p->p.x - PLAYER_SPRITE_WIDTH / 2,
 			  p->p.y - PLAYER_SPRITE_HEIGHT / 2,
 			  PLAYER_SPRITE_WIDTH,
@@ -181,7 +187,7 @@ update_player (player *p, controls *c)
 		  last_damage_taken_time = curr_time;
 		  if (p->health < 1)
 		    {
-		      game_start = false; // end game when player is out of health
+          game_start = false;
 		    }
 		}
 	    }

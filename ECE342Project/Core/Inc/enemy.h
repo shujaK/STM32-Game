@@ -15,7 +15,7 @@ typedef struct enemy
 } enemy;
 
 extern enemy enemies[MAX_ENEMIES];
-extern bullet enemy_bullets[MAX_BULLETS]; // enemy bullets array
+extern bullet enemy_bullets[MAX_BULLETS];
 extern uint32_t total_enemies;
 extern uint32_t wave_complete_time;
 extern uint16_t wave_num;

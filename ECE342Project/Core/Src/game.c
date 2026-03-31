@@ -16,7 +16,7 @@
 #include "controls.h"
 #include "sprite.h"
 
-static uint32_t rng_state = 0x9E3779B9u; // Non-zero default seed
+static uint32_t rng_state = 0x9E3779B9u; /* Non-zero default seed */
 
 uint16_t score = 0;
 bool game_start = false;
@@ -31,19 +31,16 @@ draw_all (frame *f, player *p)
     }
 
   draw_player (f, p);
-  // enemies
   for (int i = 0; i < MAX_ENEMIES; i++)
     {
       if (enemies[i].health > 0)
 	draw_enemy (f, &enemies[i]);
     }
-  // enemy bullets
   for (int i = 0; i < MAX_BULLETS; i++)
     {
       if (enemy_bullets[i].damage > 0)
 	draw_bullet (f, &enemy_bullets[i]);
     }
-  // player bullets
   for (int i = 0; i < MAX_PLAYER_BULLETS; i++)
     {
       if (player_bullets[i].damage > 0)
@@ -51,7 +48,6 @@ draw_all (frame *f, player *p)
     }
   draw_bullet_explosions (f);
   draw_enemy_explosions (f);
-  // health points
   for (int i = 0; i < p->health; i++)
     {
       draw_health (f, 10 + i * (HEALTH_SPRITE_WIDTH + 2), (IMG_ROW - 15));

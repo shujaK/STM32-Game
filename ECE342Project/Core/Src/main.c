@@ -124,7 +124,6 @@ main (void)
 
   controls *PlayerControl = malloc (sizeof(controls));
   init_game_state (&player1, PlayerControl);
-  // init_test_enemy();
 
   while (1)
     {

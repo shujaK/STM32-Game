@@ -22,17 +22,16 @@
 #define IMG_COL_2 IMG_COL / 2
 #define IMG_SIZE IMG_ROW *IMG_COL_2
 
-// pack 2 pixels into one byte, 4 bits each
+/* Pack two 4-bit pixels into one byte */
 typedef struct
 {
   uint8_t p1 :4;
   uint8_t p2 :4;
 } pix2;
 
-// one entire frame
 typedef struct
 {
-  pix2 data[IMG_SIZE]; // 2 pixels per byte so /2
+  pix2 data[IMG_SIZE];
   uint16_t score;
 } frame;
 
@@ -53,7 +52,7 @@ typedef enum
   LIGHTCYAN = 0xC,
   LIGHTRED = 0xD,
   LIGHTMAGENTA = 0xE,
-// 0xF reserved for header
+  /* 0xF reserved for header */
 } pixel_color;
 
 static inline void
@@ -61,25 +60,25 @@ write_pixel (frame *f, uint16_t x, uint16_t y, uint8_t value)
 {
   if (x >= IMG_COL || y >= IMG_ROW)
     return;
-  value &= 0xF; // get 4 lsb
+  value &= 0xF;
 
-  uint16_t x_index = x >> 1; // x / 2
+  uint16_t x_index = x >> 1;
   uint32_t idx = (y * IMG_COL_2) + x_index;
 
   if (x & 1)
     {
-      f->data[idx].p2 = value; // odd pixel
+      f->data[idx].p2 = value;
     }
   else
     {
-      f->data[idx].p1 = value; // even pixel
+      f->data[idx].p1 = value;
     }
 }
 
 static inline void
 clear_frame (frame *f, uint8_t value)
 {
-  uint8_t both_pixels = (value << 4) | value; // set both pixels in pix2
+  uint8_t both_pixels = (value << 4) | value;
   memset (f->data, both_pixels, sizeof(f->data));
 }
 

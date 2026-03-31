@@ -33,7 +33,6 @@ reset_bullet_explosion (bullet_explosion_instance *e)
 void
 draw_bullet (frame *f, bullet *b)
 {
-  // write_pixel(f, b->p.x, b->p.y, WHITE);
   const uint8_t *s;
   if (b->damage == 1)
     s = &enemy_bullet_sprite;
@@ -91,10 +90,8 @@ update_bullets ()
       if (player_bullets[i].damage > 0)
 	{
 	  player_bullets[i].p.x += player_bullets[i].velocity.x;
-	  player_bullets[i].p.y += player_bullets[i].velocity.y; // Move using velocity
+    player_bullets[i].p.y += player_bullets[i].velocity.y;
 
-	  // Deactivate the bullet if it goes off the top edge of the screen
-	  // Assuming 0 is the top boundary
 	  if (player_bullets[i].p.y
 	      < 3|| player_bullets[i].p.x < 0 || player_bullets[i].p.x > IMG_COL)
 	    {
@@ -102,9 +99,6 @@ update_bullets ()
 	    }
 	}
     }
-
-  // Enemy bullets update could be added here similarly if needed
-
 }
 
 void
