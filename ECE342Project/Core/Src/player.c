@@ -2,11 +2,34 @@
 #include "sprite.h"
 #include "enemy.h"
 
+#define PLAYER_START_X 90
+#define PLAYER_START_Y 240
+#define PLAYER_START_HEALTH 5
+
 player player1;
 bullet player_bullets[MAX_PLAYER_BULLETS];
 uint16_t last_fire_time = 0;
 uint32_t last_special_time = 0;
 uint16_t last_damage_taken_time = 0;
+
+void
+init_player (player *p)
+{
+  if (!p)
+    return;
+
+  p->p.x = PLAYER_START_X;
+  p->p.y = PLAYER_START_Y;
+  p->health = PLAYER_START_HEALTH;
+  p->velocity.x = 0;
+  p->velocity.y = 0;
+  p->cooldown = 0;
+  p->special_available = true;
+
+  last_fire_time = 0;
+  last_special_time = 0;
+  last_damage_taken_time = 0;
+}
 
 void
 draw_player (frame *f, player *p)
@@ -75,10 +98,26 @@ handle_shooting (player *p, controls *c, uint64_t current_time_ms)
       if (c->button_bomb)
 	{
 	  for (int i = 0; i < MAX_BULLETS; i++)
-	  	{
-	  	  enemy_bullets[i].damage = 0;
-	  	  last_special_time = current_time_ms;
-	  	}
+	    {
+	      if (enemy_bullets[i].damage > 0)
+		{
+		  spawn_bullet_explosion (enemy_bullets[i].p.x,
+					  enemy_bullets[i].p.y);
+		  enemy_bullets[i].damage = 0;
+		}
+	    }
+
+	  for (int i = 0; i < MAX_PLAYER_BULLETS; i++)
+	    {
+	      if (player_bullets[i].damage > 0)
+		{
+		  spawn_bullet_explosion (player_bullets[i].p.x,
+					  player_bullets[i].p.y);
+		  player_bullets[i].damage = 0;
+		}
+	    }
+
+	  last_special_time = current_time_ms;
 	}
     }
   else
@@ -91,7 +130,7 @@ handle_shooting (player *p, controls *c, uint64_t current_time_ms)
 void
 update_player (player *p, controls *c)
 {
-  p->velocity.x = c->joystick_x * 3; // scale the joystick input to control speed
+  p->velocity.x = c->joystick_x * 4; // scale the joystick input to control speed
   p->velocity.y = c->joystick_y * 5;
   p->p.x += p->velocity.x;
   p->p.y += p->velocity.y;

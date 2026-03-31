@@ -1,3 +1,4 @@
+import argparse
 import os
 import re
 import sys
@@ -83,13 +84,16 @@ def image_to_bytes(image: np.ndarray):
 def print_c_output(byte_array, rows, cols, palette, name="sprite"):
     macro_prefix = sanitize_name(name).upper()
     length = len(byte_array)
+    # Recover original (unpadded) width; odd widths are padded by one column.
+    unpadded_cols = cols if cols % 2 == 0 else cols - 1
+    packed_cols = cols // 2
 
     print(f"// Palette (index: R, G, B)")
     for idx, (r, g, b) in enumerate(palette):
         print(f"// {idx:2d}: ({r}, {g}, {b})")
 
-    print(f"#define {macro_prefix}_WIDTH {cols-1}")
-    print(f"#define {macro_prefix}_WIDTH_PACKED {cols}")
+    print(f"#define {macro_prefix}_WIDTH {unpadded_cols}")
+    print(f"#define {macro_prefix}_WIDTH_PACKED {packed_cols}")
     print(f"#define {macro_prefix}_HEIGHT {rows}")
 
     print(f"static const uint8_t {name}[{length}] = {{")
@@ -100,17 +104,96 @@ def print_c_output(byte_array, rows, cols, palette, name="sprite"):
     print("\n};")
 
 
-if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: python sprite.py <image.png>", file=sys.stderr)
-        sys.exit(1)
+def slice_horizontal_spritesheet(image: np.ndarray, tile_size: int = 16):
+    """Split a (16 * n) x 16 horizontal strip into a list of tiles."""
+    rows, cols, _ = image.shape
+    if rows != tile_size:
+        raise ValueError(
+            f"Spritesheet height must be {tile_size}, got {rows}"
+        )
+    if cols % tile_size != 0:
+        raise ValueError(
+            f"Spritesheet width must be a multiple of {tile_size}, got {cols}"
+        )
+    tiles = []
+    for idx in range(cols // tile_size):
+        left = idx * tile_size
+        right = left + tile_size
+        tiles.append(image[:, left:right, :])
+    return tiles
 
-    image_path = sys.argv[1]
+
+def print_c_spritesheet_output(byte_arrays, rows, cols, palette, name="sheet"):
+    macro_prefix = sanitize_name(name).upper()
+    count = len(byte_arrays)
+    if count == 0:
+        raise ValueError("No sprites to emit")
+
+    sprite_length = len(byte_arrays[0])
+    if any(len(arr) != sprite_length for arr in byte_arrays):
+        raise ValueError("All sprites in the sheet must have the same dimensions")
+
+    unpadded_cols = cols if cols % 2 == 0 else cols - 1
+    packed_cols = cols // 2
+
+    print(f"// Palette (index: R, G, B)")
+    for idx, (r, g, b) in enumerate(palette):
+        print(f"// {idx:2d}: ({r}, {g}, {b})")
+
+    print(f"#define {macro_prefix}_SPRITE_WIDTH {unpadded_cols}")
+    print(f"#define {macro_prefix}_SPRITE_WIDTH_PACKED {packed_cols}")
+    print(f"#define {macro_prefix}_SPRITE_HEIGHT {rows}")
+    print(f"#define {macro_prefix}_SPRITE_COUNT {count}")
+    print(f"#define {macro_prefix}_SPRITE_SIZE {sprite_length}")
+
+    print(f"static const uint8_t {name}[{count}][{sprite_length}] = {{")
+    for idx, arr in enumerate(byte_arrays):
+        print(f"    // sprite {idx}")
+        print("    {", end="")
+        for i, b in enumerate(arr):
+            prefix = "\n     " if (i % 16 == 0 and i != 0) else " "
+            print(f"{prefix}0x{b:02X},", end="")
+        print("\n    },")
+    print("};")
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Convert sprites to packed C arrays")
+    parser.add_argument("image_path", help="Path to a PNG sprite or spritesheet")
+    parser.add_argument(
+        "--sheet",
+        action="store_true",
+        help="Treat the input as a horizontal spritesheet of 16x16 tiles",
+    )
+    args = parser.parse_args()
+
+    image_path = args.image_path
     image = cv2.imread(image_path, cv2.IMREAD_UNCHANGED)
     if image is None:
         print(f"Failed to read image: {image_path}", file=sys.stderr)
         sys.exit(1)
 
-    byte_array, rows, cols, palette = image_to_bytes(image)
+    is_sheet = args.sheet
+    if not is_sheet:
+        rows, cols, _ = image.shape
+        is_sheet = rows == 16 and cols % 16 == 0 and cols > 16
+
     sprite_name = sanitize_name(image_path)
-    print_c_output(byte_array, rows, cols, palette, name=sprite_name)
+
+    if is_sheet:
+        tiles = slice_horizontal_spritesheet(image, tile_size=16)
+        byte_arrays = []
+        rows = cols = None
+        palette = None
+        for tile in tiles:
+            byte_array, t_rows, t_cols, t_palette = image_to_bytes(tile)
+            byte_arrays.append(byte_array)
+            rows = t_rows
+            cols = t_cols
+            palette = t_palette
+        print_c_spritesheet_output(
+            byte_arrays, rows, cols, palette, name=sprite_name
+        )
+    else:
+        byte_array, rows, cols, palette = image_to_bytes(image)
+        print_c_output(byte_array, rows, cols, palette, name=sprite_name)

@@ -41,7 +41,11 @@ draw_health (frame *f, int x, int y);
 void
 draw_special (frame *f);
 void
+draw_game_over (frame *f);
+void
 update_all (player *p, controls *c);
+void
+init_game_state (player *p, controls *c);
 
 void
 game_random_seed (uint32_t seed);

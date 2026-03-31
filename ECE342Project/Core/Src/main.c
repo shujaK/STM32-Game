@@ -122,15 +122,9 @@ main (void)
 
   frame f;
 
-  player player1 =
-    { .p =
-      { .x = 90, .y = 240 }, .health = 5, .velocity =
-      { 0, 0 }, .cooldown = 0, .special_available = true };
-
   controls *PlayerControl = malloc (sizeof(controls));
-  init_bullets ();
+  init_game_state (&player1, PlayerControl);
   // init_test_enemy();
-  total_enemies = 0;
 
   while (1)
     {

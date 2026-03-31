@@ -4,6 +4,8 @@
 #include "game.h"
 #include "bullet.h"
 
+struct animation;
+
 typedef struct enemy
 {
   int2d p;
@@ -39,5 +41,13 @@ bool
 check_AABB (int x1, int y1, int w1, int h1, int x2, int y2, int w2, int h2);
 void
 update_enemy ();
+
+void
+spawn_enemy_explosion (int x, int y);
+void
+draw_enemy_explosions (frame *f);
+
+void
+reset_enemies (void);
 
 #endif /* INC_ENEMY_H_ */

@@ -90,9 +90,9 @@ update_controls (controls *c)
   if (norm_y > -0.05f && norm_y < 0.05f)
     norm_y = 0.0f;
 
-  // norm_x *= -1.0f;
-  c->joystick_x = norm_x;
-  c->joystick_y = norm_y;
+  // Joystick was mounted 90 deg clockwise: rotate readings back so game axes stay consistent
+  c->joystick_x = -norm_y;
+  c->joystick_y = norm_x;
 
   // sprintf(buff, "X: %.5f, Y: %.5f\n", norm_x, norm_y);
   // print_msg(buff);

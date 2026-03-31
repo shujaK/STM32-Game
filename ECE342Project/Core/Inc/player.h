@@ -22,5 +22,7 @@ void
 update_player (player *p, controls *c);
 void
 handle_shooting (player *p, controls *c, uint64_t current_time_ms);
+void
+init_player (player *p);
 
 #endif /* INC_PLAYER_H_ */

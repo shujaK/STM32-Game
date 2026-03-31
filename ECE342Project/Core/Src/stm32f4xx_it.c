@@ -1,20 +1,20 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * @file    stm32f4xx_it.c
-  * @brief   Interrupt Service Routines.
-  ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2026 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file    stm32f4xx_it.c
+ * @brief   Interrupt Service Routines.
+ ******************************************************************************
+ * @attention
+ *
+ * Copyright (c) 2026 STMicroelectronics.
+ * All rights reserved.
+ *
+ * This software is licensed under terms that can be found in the LICENSE file
+ * in the root directory of this software component.
+ * If no LICENSE file comes with this software, it is provided AS-IS.
+ *
+ ******************************************************************************
+ */
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
@@ -66,84 +66,90 @@ extern volatile bool flag_bomb;
 /*           Cortex-M4 Processor Interruption and Exception Handlers          */
 /******************************************************************************/
 /**
-  * @brief This function handles Non maskable interrupt.
-  */
-void NMI_Handler(void)
+ * @brief This function handles Non maskable interrupt.
+ */
+void
+NMI_Handler (void)
 {
   /* USER CODE BEGIN NonMaskableInt_IRQn 0 */
 
   /* USER CODE END NonMaskableInt_IRQn 0 */
   /* USER CODE BEGIN NonMaskableInt_IRQn 1 */
-   while (1)
-  {
-  }
+  while (1)
+    {
+    }
   /* USER CODE END NonMaskableInt_IRQn 1 */
 }
 
 /**
-  * @brief This function handles Hard fault interrupt.
-  */
-void HardFault_Handler(void)
+ * @brief This function handles Hard fault interrupt.
+ */
+void
+HardFault_Handler (void)
 {
   /* USER CODE BEGIN HardFault_IRQn 0 */
 
   /* USER CODE END HardFault_IRQn 0 */
   while (1)
-  {
-    /* USER CODE BEGIN W1_HardFault_IRQn 0 */
-    /* USER CODE END W1_HardFault_IRQn 0 */
-  }
+    {
+      /* USER CODE BEGIN W1_HardFault_IRQn 0 */
+      /* USER CODE END W1_HardFault_IRQn 0 */
+    }
 }
 
 /**
-  * @brief This function handles Memory management fault.
-  */
-void MemManage_Handler(void)
+ * @brief This function handles Memory management fault.
+ */
+void
+MemManage_Handler (void)
 {
   /* USER CODE BEGIN MemoryManagement_IRQn 0 */
 
   /* USER CODE END MemoryManagement_IRQn 0 */
   while (1)
-  {
-    /* USER CODE BEGIN W1_MemoryManagement_IRQn 0 */
-    /* USER CODE END W1_MemoryManagement_IRQn 0 */
-  }
+    {
+      /* USER CODE BEGIN W1_MemoryManagement_IRQn 0 */
+      /* USER CODE END W1_MemoryManagement_IRQn 0 */
+    }
 }
 
 /**
-  * @brief This function handles Pre-fetch fault, memory access fault.
-  */
-void BusFault_Handler(void)
+ * @brief This function handles Pre-fetch fault, memory access fault.
+ */
+void
+BusFault_Handler (void)
 {
   /* USER CODE BEGIN BusFault_IRQn 0 */
 
   /* USER CODE END BusFault_IRQn 0 */
   while (1)
-  {
-    /* USER CODE BEGIN W1_BusFault_IRQn 0 */
-    /* USER CODE END W1_BusFault_IRQn 0 */
-  }
+    {
+      /* USER CODE BEGIN W1_BusFault_IRQn 0 */
+      /* USER CODE END W1_BusFault_IRQn 0 */
+    }
 }
 
 /**
-  * @brief This function handles Undefined instruction or illegal state.
-  */
-void UsageFault_Handler(void)
+ * @brief This function handles Undefined instruction or illegal state.
+ */
+void
+UsageFault_Handler (void)
 {
   /* USER CODE BEGIN UsageFault_IRQn 0 */
 
   /* USER CODE END UsageFault_IRQn 0 */
   while (1)
-  {
-    /* USER CODE BEGIN W1_UsageFault_IRQn 0 */
-    /* USER CODE END W1_UsageFault_IRQn 0 */
-  }
+    {
+      /* USER CODE BEGIN W1_UsageFault_IRQn 0 */
+      /* USER CODE END W1_UsageFault_IRQn 0 */
+    }
 }
 
 /**
-  * @brief This function handles System service call via SWI instruction.
-  */
-void SVC_Handler(void)
+ * @brief This function handles System service call via SWI instruction.
+ */
+void
+SVC_Handler (void)
 {
   /* USER CODE BEGIN SVCall_IRQn 0 */
 
@@ -154,9 +160,10 @@ void SVC_Handler(void)
 }
 
 /**
-  * @brief This function handles Debug monitor.
-  */
-void DebugMon_Handler(void)
+ * @brief This function handles Debug monitor.
+ */
+void
+DebugMon_Handler (void)
 {
   /* USER CODE BEGIN DebugMonitor_IRQn 0 */
 
@@ -167,9 +174,10 @@ void DebugMon_Handler(void)
 }
 
 /**
-  * @brief This function handles Pendable request for system service.
-  */
-void PendSV_Handler(void)
+ * @brief This function handles Pendable request for system service.
+ */
+void
+PendSV_Handler (void)
 {
   /* USER CODE BEGIN PendSV_IRQn 0 */
 
@@ -180,14 +188,15 @@ void PendSV_Handler(void)
 }
 
 /**
-  * @brief This function handles System tick timer.
-  */
-void SysTick_Handler(void)
+ * @brief This function handles System tick timer.
+ */
+void
+SysTick_Handler (void)
 {
   /* USER CODE BEGIN SysTick_IRQn 0 */
 
   /* USER CODE END SysTick_IRQn 0 */
-  HAL_IncTick();
+  HAL_IncTick ();
   /* USER CODE BEGIN SysTick_IRQn 1 */
 
   /* USER CODE END SysTick_IRQn 1 */
@@ -201,50 +210,61 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /**
-  * @brief This function handles EXTI line[15:10] interrupts.
-  */
-void EXTI15_10_IRQHandler(void)
+ * @brief This function handles EXTI line[15:10] interrupts.
+ */
+void
+EXTI15_10_IRQHandler (void)
 {
   /* USER CODE BEGIN EXTI15_10_IRQn 0 */
-  uint32_t current_time = HAL_GetTick(); // Get current time in ms
+  uint32_t current_time = HAL_GetTick (); // Get current time in ms
   const uint32_t DEBOUNCE_DELAY = 200;    // 200 milliseconds debounce window
+  const uint32_t SHOOT_CD = 200;    // 200 milliseconds debounce window
   static uint32_t last_bomb_time = 0;
+  static uint32_t last_shoot_time = 0;
 
-  if (__HAL_GPIO_EXTI_GET_FLAG(BTN_SHOOT_Pin)) {
-    flag_shoot = true;
-
-  }
-
-  if (__HAL_GPIO_EXTI_GET_FLAG(BTN_BOMB_Pin)) {
-    // flag_bomb = true;
-    if ((current_time - last_bomb_time) > DEBOUNCE_DELAY) {
-      flag_bomb = true;
-      last_bomb_time = current_time;
+  if (__HAL_GPIO_EXTI_GET_FLAG(BTN_SHOOT_Pin))
+    {
+      if ((current_time - last_shoot_time) > SHOOT_CD)
+	{
+	  flag_shoot = true;
+	  last_shoot_time = current_time;
+	}
     }
-  }
 
-  if (__HAL_GPIO_EXTI_GET_FLAG(BTN_PAUSE_Pin)) {
-    // flag_shoot = true;
+  if (__HAL_GPIO_EXTI_GET_FLAG(BTN_BOMB_Pin))
+    {
+      // flag_bomb = true;
+      if ((current_time - last_bomb_time) > DEBOUNCE_DELAY)
+	{
+	  flag_bomb = true;
+	  last_bomb_time = current_time;
+	}
+    }
 
-  }
+  if (__HAL_GPIO_EXTI_GET_FLAG(BTN_PAUSE_Pin))
+    {
+      // flag_shoot = true;
+
+    }
   /* USER CODE END EXTI15_10_IRQn 0 */
-  HAL_GPIO_EXTI_IRQHandler(BTN_PAUSE_Pin);
-  HAL_GPIO_EXTI_IRQHandler(BTN_BOMB_Pin);
-  HAL_GPIO_EXTI_IRQHandler(BTN_SHOOT_Pin);
+  HAL_GPIO_EXTI_IRQHandler (BTN_PAUSE_Pin);
+  HAL_GPIO_EXTI_IRQHandler (BTN_BOMB_Pin);
+  HAL_GPIO_EXTI_IRQHandler (BTN_SHOOT_Pin);
   /* USER CODE BEGIN EXTI15_10_IRQn 1 */
 
   /* USER CODE END EXTI15_10_IRQn 1 */
 }
 
 /**
-  * @brief This function handles USB On The Go FS global interrupt.
-  */
-void OTG_FS_IRQHandler(void)
+ * @brief This function handles USB On The Go FS global interrupt.
+ */
+void
+OTG_FS_IRQHandler (void)
 {
   /* USER CODE BEGIN OTG_FS_IRQn 0 */
 
   /* USER CODE END OTG_FS_IRQn 0 */
-  HAL_PCD_IRQHandler(&hpcd_USB_OTG_FS);
+  HAL_PCD_IRQHandler (&hpcd_USB_OTG_FS);
   /* USER CODE BEGIN OTG_FS_IRQn 1 */
 
   /* USER CODE END OTG_FS_IRQn 1 */
